@@ -69,19 +69,15 @@ export const insertCaseSchema = createInsertSchema(cases).omit({
 export const insertReminderSchema = createInsertSchema(reminders).omit({
   id: true,
   createdAt: true,
-}).extend({
-  dueDate: z.coerce.date(),
 });
 
+// Inferred types
 export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
 export type InsertClient = z.infer<typeof insertClientSchema>;
-export type Client = typeof clients.$inferSelect;
 export type InsertCase = z.infer<typeof insertCaseSchema>;
-export type Case = typeof cases.$inferSelect;
 export type InsertReminder = z.infer<typeof insertReminderSchema>;
-export type Reminder = typeof reminders.$inferSelect;
 
+// Extended types with relationships
 export interface CaseWithClient extends Case {
   client?: Client;
 }

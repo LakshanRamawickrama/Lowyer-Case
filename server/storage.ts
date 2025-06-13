@@ -88,82 +88,91 @@ export class SupabaseStorage implements IStorage {
           }
         ];
 
-        const insertedClients = await db.insert(clients).values(clientsData).returning();
+        for (const clientData of clientsData) {
+          await db.insert(clients).values(clientData).onConflictDoNothing();
+        }
+
+        // Get created clients to reference in cases
+        const createdClients = await db.select().from(clients).limit(3);
 
         // Create sample cases
         const casesData = [
           {
-            title: "Johnson vs. Smith Corp",
-            caseNumber: "CASE-2024-001",
+            title: "Personal Injury Claim",
+            caseNumber: "PI-2024-001",
             type: "Personal Injury",
             status: "active",
             priority: "high",
-            description: "Personal injury case involving workplace accident",
-            clientId: insertedClients[0].id
+            description: "Slip and fall incident at local grocery store",
+            clientId: createdClients[0]?.id
           },
           {
-            title: "Miller Estate Planning",
-            caseNumber: "CASE-2024-002",
-            type: "Estate Law",
-            status: "pending",
-            priority: "medium",
-            description: "Estate planning and will preparation",
-            clientId: insertedClients[1].id
-          },
-          {
-            title: "TechCorp Contract Review",
-            caseNumber: "CASE-2024-003",
+            title: "Corporate Contract Review",
+            caseNumber: "CR-2024-002",
             type: "Corporate Law",
-            status: "review",
+            status: "active",
             priority: "medium",
-            description: "Contract review and legal consultation",
-            clientId: insertedClients[2].id
+            description: "Review and negotiation of service agreement",
+            clientId: createdClients[2]?.id
+          },
+          {
+            title: "Estate Planning",
+            caseNumber: "EP-2024-003",
+            type: "Estate Planning",
+            status: "pending",
+            priority: "low",
+            description: "Will and trust preparation",
+            clientId: createdClients[1]?.id
           }
         ];
 
-        const insertedCases = await db.insert(cases).values(casesData).returning();
+        for (const caseData of casesData) {
+          if (caseData.clientId) {
+            await db.insert(cases).values(caseData).onConflictDoNothing();
+          }
+        }
+
+        // Get created cases to reference in reminders
+        const createdCases = await db.select().from(cases).limit(3);
 
         // Create sample reminders
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        const nextWeek = new Date();
-        nextWeek.setDate(nextWeek.getDate() + 7);
-
         const remindersData = [
           {
-            title: "Court Hearing - Johnson vs. Smith",
+            title: "Court Hearing",
             description: "Initial hearing for personal injury case",
-            dueDate: new Date(Date.now() + 2 * 60 * 60 * 1000),
-            location: "Downtown Courthouse",
-            type: "hearing",
-            priority: "urgent",
-            completed: false,
-            caseId: insertedCases[0].id
-          },
-          {
-            title: "Document Submission Deadline",
-            description: "Submit estate planning documents",
-            dueDate: tomorrow,
-            location: "County Clerk Office",
-            type: "deadline",
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            location: "Courthouse Room 204",
+            type: "court",
             priority: "high",
             completed: false,
-            caseId: insertedCases[1].id
+            caseId: createdCases[0]?.id
           },
           {
-            title: "Client Meeting - TechCorp Contract",
-            description: "Review contract terms and amendments",
-            dueDate: nextWeek,
-            location: "Video Conference",
+            title: "Client Meeting",
+            description: "Contract review meeting with TechCorp",
+            dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            location: "Law Office Conference Room",
             type: "meeting",
             priority: "medium",
             completed: false,
-            caseId: insertedCases[2].id
+            caseId: createdCases[1]?.id
+          },
+          {
+            title: "Document Deadline",
+            description: "Submit estate planning documents",
+            dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+            type: "deadline",
+            priority: "medium",
+            completed: false,
+            caseId: createdCases[2]?.id
           }
         ];
 
-        await db.insert(reminders).values(remindersData);
+        for (const reminderData of remindersData) {
+          if (reminderData.caseId) {
+            await db.insert(reminders).values(reminderData).onConflictDoNothing();
+          }
+        }
       }
     } catch (error) {
       console.error("Database initialization failed:", error);
@@ -253,62 +262,47 @@ export class SupabaseStorage implements IStorage {
 
   async deleteClient(id: number): Promise<boolean> {
     try {
-      // First check if the client exists
-      const existingClient = await db.select().from(clients).where(eq(clients.id, id)).limit(1);
-      if (existingClient.length === 0) {
-        console.log(`Client with id ${id} not found`);
-        return false;
-      }
-      
-      // Check if client has associated cases
-      const associatedCases = await db.select().from(cases).where(eq(cases.clientId, id)).limit(1);
-      if (associatedCases.length > 0) {
-        console.log(`Client with id ${id} has associated cases and cannot be deleted`);
-        throw new Error("Cannot delete client with associated cases");
-      }
-      
-      // Delete the client
-      await db.delete(clients).where(eq(clients.id, id));
-      console.log(`Successfully deleted client with id ${id}`);
-      return true;
+      const result = await db.delete(clients).where(eq(clients.id, id));
+      return result.rowCount > 0;
     } catch (error) {
       console.error("Error deleting client:", error);
-      throw error;
+      return false;
     }
   }
 
   // Case methods
   async getCases(): Promise<CaseWithClient[]> {
     try {
-      const result = await db.select({
-        id: cases.id,
-        title: cases.title,
-        caseNumber: cases.caseNumber,
-        type: cases.type,
-        status: cases.status,
-        priority: cases.priority,
-        description: cases.description,
-        clientId: cases.clientId,
-        createdAt: cases.createdAt,
-        updatedAt: cases.updatedAt,
-        client: {
-          id: clients.id,
-          name: clients.name,
-          email: clients.email,
-          phone: clients.phone,
-          address: clients.address,
-          status: clients.status,
-          createdAt: clients.createdAt
-        }
-      })
-      .from(cases)
-      .leftJoin(clients, eq(cases.clientId, clients.id))
-      .orderBy(desc(cases.updatedAt));
-      
+      const result = await db
+        .select({
+          id: cases.id,
+          title: cases.title,
+          caseNumber: cases.caseNumber,
+          type: cases.type,
+          status: cases.status,
+          priority: cases.priority,
+          description: cases.description,
+          clientId: cases.clientId,
+          createdAt: cases.createdAt,
+          updatedAt: cases.updatedAt,
+          client: {
+            id: clients.id,
+            name: clients.name,
+            email: clients.email,
+            phone: clients.phone,
+            address: clients.address,
+            status: clients.status,
+            createdAt: clients.createdAt,
+          }
+        })
+        .from(cases)
+        .leftJoin(clients, eq(cases.clientId, clients.id))
+        .orderBy(desc(cases.updatedAt));
+
       return result.map(row => ({
         ...row,
-        client: row.client?.id ? row.client as any : undefined
-      })) as CaseWithClient[];
+        client: row.client.id ? row.client : undefined
+      }));
     } catch (error) {
       console.error("Error getting cases:", error);
       return [];
@@ -317,39 +311,40 @@ export class SupabaseStorage implements IStorage {
 
   async getCase(id: number): Promise<CaseWithClient | undefined> {
     try {
-      const result = await db.select({
-        id: cases.id,
-        title: cases.title,
-        caseNumber: cases.caseNumber,
-        type: cases.type,
-        status: cases.status,
-        priority: cases.priority,
-        description: cases.description,
-        clientId: cases.clientId,
-        createdAt: cases.createdAt,
-        updatedAt: cases.updatedAt,
-        client: {
-          id: clients.id,
-          name: clients.name,
-          email: clients.email,
-          phone: clients.phone,
-          address: clients.address,
-          status: clients.status,
-          createdAt: clients.createdAt
-        }
-      })
-      .from(cases)
-      .leftJoin(clients, eq(cases.clientId, clients.id))
-      .where(eq(cases.id, id))
-      .limit(1);
-      
+      const result = await db
+        .select({
+          id: cases.id,
+          title: cases.title,
+          caseNumber: cases.caseNumber,
+          type: cases.type,
+          status: cases.status,
+          priority: cases.priority,
+          description: cases.description,
+          clientId: cases.clientId,
+          createdAt: cases.createdAt,
+          updatedAt: cases.updatedAt,
+          client: {
+            id: clients.id,
+            name: clients.name,
+            email: clients.email,
+            phone: clients.phone,
+            address: clients.address,
+            status: clients.status,
+            createdAt: clients.createdAt,
+          }
+        })
+        .from(cases)
+        .leftJoin(clients, eq(cases.clientId, clients.id))
+        .where(eq(cases.id, id))
+        .limit(1);
+
       if (result.length === 0) return undefined;
       
       const row = result[0];
       return {
         ...row,
-        client: row.client?.id ? row.client as any : undefined
-      } as CaseWithClient;
+        client: row.client.id ? row.client : undefined
+      };
     } catch (error) {
       console.error("Error getting case:", error);
       return undefined;
@@ -358,7 +353,7 @@ export class SupabaseStorage implements IStorage {
 
   async getCasesByClient(clientId: number): Promise<Case[]> {
     try {
-      return await db.select().from(cases).where(eq(cases.clientId, clientId)).orderBy(desc(cases.updatedAt));
+      return await db.select().from(cases).where(eq(cases.clientId, clientId));
     } catch (error) {
       console.error("Error getting cases by client:", error);
       return [];
@@ -367,11 +362,7 @@ export class SupabaseStorage implements IStorage {
 
   async createCase(insertCase: InsertCase): Promise<Case> {
     try {
-      const caseNumber = insertCase.caseNumber || `CASE-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
-      const result = await db.insert(cases).values({
-        ...insertCase,
-        caseNumber
-      }).returning();
+      const result = await db.insert(cases).values(insertCase).returning();
       return result[0];
     } catch (error) {
       console.error("Error creating case:", error);
@@ -381,10 +372,7 @@ export class SupabaseStorage implements IStorage {
 
   async updateCase(id: number, updates: Partial<InsertCase>): Promise<Case | undefined> {
     try {
-      const result = await db.update(cases).set({
-        ...updates,
-        updatedAt: new Date()
-      }).where(eq(cases.id, id)).returning();
+      const result = await db.update(cases).set({ ...updates, updatedAt: new Date() }).where(eq(cases.id, id)).returning();
       return result[0];
     } catch (error) {
       console.error("Error updating case:", error);
@@ -394,8 +382,8 @@ export class SupabaseStorage implements IStorage {
 
   async deleteCase(id: number): Promise<boolean> {
     try {
-      const result = await db.delete(cases).where(eq(cases.id, id)).returning();
-      return result.length > 0;
+      const result = await db.delete(cases).where(eq(cases.id, id));
+      return result.rowCount > 0;
     } catch (error) {
       console.error("Error deleting case:", error);
       return false;
@@ -405,38 +393,39 @@ export class SupabaseStorage implements IStorage {
   // Reminder methods
   async getReminders(): Promise<ReminderWithCase[]> {
     try {
-      const result = await db.select({
-        id: reminders.id,
-        title: reminders.title,
-        description: reminders.description,
-        dueDate: reminders.dueDate,
-        location: reminders.location,
-        type: reminders.type,
-        priority: reminders.priority,
-        completed: reminders.completed,
-        caseId: reminders.caseId,
-        createdAt: reminders.createdAt,
-        case: {
-          id: cases.id,
-          title: cases.title,
-          caseNumber: cases.caseNumber,
-          type: cases.type,
-          status: cases.status,
-          priority: cases.priority,
-          description: cases.description,
-          clientId: cases.clientId,
-          createdAt: cases.createdAt,
-          updatedAt: cases.updatedAt
-        }
-      })
-      .from(reminders)
-      .leftJoin(cases, eq(reminders.caseId, cases.id))
-      .orderBy(asc(reminders.dueDate));
-      
+      const result = await db
+        .select({
+          id: reminders.id,
+          title: reminders.title,
+          description: reminders.description,
+          dueDate: reminders.dueDate,
+          location: reminders.location,
+          type: reminders.type,
+          priority: reminders.priority,
+          completed: reminders.completed,
+          caseId: reminders.caseId,
+          createdAt: reminders.createdAt,
+          case: {
+            id: cases.id,
+            title: cases.title,
+            caseNumber: cases.caseNumber,
+            type: cases.type,
+            status: cases.status,
+            priority: cases.priority,
+            description: cases.description,
+            clientId: cases.clientId,
+            createdAt: cases.createdAt,
+            updatedAt: cases.updatedAt,
+          }
+        })
+        .from(reminders)
+        .leftJoin(cases, eq(reminders.caseId, cases.id))
+        .orderBy(asc(reminders.dueDate));
+
       return result.map(row => ({
         ...row,
-        case: row.case?.id ? row.case as any : undefined
-      })) as ReminderWithCase[];
+        case: row.case.id ? row.case : undefined
+      }));
     } catch (error) {
       console.error("Error getting reminders:", error);
       return [];
@@ -445,42 +434,43 @@ export class SupabaseStorage implements IStorage {
 
   async getReminder(id: number): Promise<ReminderWithCase | undefined> {
     try {
-      const result = await db.select({
-        id: reminders.id,
-        title: reminders.title,
-        description: reminders.description,
-        dueDate: reminders.dueDate,
-        location: reminders.location,
-        type: reminders.type,
-        priority: reminders.priority,
-        completed: reminders.completed,
-        caseId: reminders.caseId,
-        createdAt: reminders.createdAt,
-        case: {
-          id: cases.id,
-          title: cases.title,
-          caseNumber: cases.caseNumber,
-          type: cases.type,
-          status: cases.status,
-          priority: cases.priority,
-          description: cases.description,
-          clientId: cases.clientId,
-          createdAt: cases.createdAt,
-          updatedAt: cases.updatedAt
-        }
-      })
-      .from(reminders)
-      .leftJoin(cases, eq(reminders.caseId, cases.id))
-      .where(eq(reminders.id, id))
-      .limit(1);
-      
+      const result = await db
+        .select({
+          id: reminders.id,
+          title: reminders.title,
+          description: reminders.description,
+          dueDate: reminders.dueDate,
+          location: reminders.location,
+          type: reminders.type,
+          priority: reminders.priority,
+          completed: reminders.completed,
+          caseId: reminders.caseId,
+          createdAt: reminders.createdAt,
+          case: {
+            id: cases.id,
+            title: cases.title,
+            caseNumber: cases.caseNumber,
+            type: cases.type,
+            status: cases.status,
+            priority: cases.priority,
+            description: cases.description,
+            clientId: cases.clientId,
+            createdAt: cases.createdAt,
+            updatedAt: cases.updatedAt,
+          }
+        })
+        .from(reminders)
+        .leftJoin(cases, eq(reminders.caseId, cases.id))
+        .where(eq(reminders.id, id))
+        .limit(1);
+
       if (result.length === 0) return undefined;
       
       const row = result[0];
       return {
         ...row,
-        case: row.case?.id ? row.case as any : undefined
-      } as ReminderWithCase;
+        case: row.case.id ? row.case : undefined
+      };
     } catch (error) {
       console.error("Error getting reminder:", error);
       return undefined;
@@ -509,17 +499,8 @@ export class SupabaseStorage implements IStorage {
 
   async deleteReminder(id: number): Promise<boolean> {
     try {
-      // First check if the reminder exists
-      const existingReminder = await db.select().from(reminders).where(eq(reminders.id, id)).limit(1);
-      if (existingReminder.length === 0) {
-        console.log(`Reminder with id ${id} not found`);
-        return false;
-      }
-      
-      // Delete the reminder
-      await db.delete(reminders).where(eq(reminders.id, id));
-      console.log(`Successfully deleted reminder with id ${id}`);
-      return true;
+      const result = await db.delete(reminders).where(eq(reminders.id, id));
+      return result.rowCount > 0;
     } catch (error) {
       console.error("Error deleting reminder:", error);
       return false;
@@ -532,7 +513,7 @@ export class SupabaseStorage implements IStorage {
         db.select({ count: count() }).from(cases),
         db.select({ count: count() }).from(cases).where(eq(cases.status, 'active')),
         db.select({ count: count() }).from(clients),
-        db.select({ count: count() }).from(reminders).where(eq(reminders.completed, false))
+        db.select({ count: count() }).from(reminders).where(and(eq(reminders.completed, false)))
       ]);
 
       return {
