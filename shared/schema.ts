@@ -71,7 +71,13 @@ export const insertReminderSchema = createInsertSchema(reminders).omit({
   createdAt: true,
 });
 
-// Inferred types
+// Select types
+export type User = typeof users.$inferSelect;
+export type Client = typeof clients.$inferSelect;
+export type Case = typeof cases.$inferSelect;
+export type Reminder = typeof reminders.$inferSelect;
+
+// Insert types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertClient = z.infer<typeof insertClientSchema>;
 export type InsertCase = z.infer<typeof insertCaseSchema>;

@@ -1,10 +1,4 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import { eq, desc, asc, and, count } from 'drizzle-orm';
-import { users, clients, cases, reminders, type User, type InsertUser, type Client, type InsertClient, type Case, type InsertCase, type Reminder, type InsertReminder, type CaseWithClient, type ReminderWithCase, type DashboardStats } from "@shared/schema";
-
-const sql = postgres(process.env.DATABASE_URL!);
-const db = drizzle(sql);
+import { type User, type InsertUser, type Client, type InsertClient, type Case, type InsertCase, type Reminder, type InsertReminder, type CaseWithClient, type ReminderWithCase, type DashboardStats } from "@shared/schema";
 
 export interface IStorage {
   // User methods
@@ -42,9 +36,19 @@ export interface IStorage {
   initializeDatabase(): Promise<void>;
 }
 
-export class SupabaseStorage implements IStorage {
+export class MemStorage implements IStorage {
+  private users: User[] = [];
+  private clients: Client[] = [];
+  private cases: Case[] = [];
+  private reminders: Reminder[] = [];
+  private nextId = 1;
+
   constructor() {
     this.initializeDatabase();
+  }
+
+  private generateId(): number {
+    return this.nextId++;
   }
 
   async initializeDatabase(): Promise<void> {
@@ -53,15 +57,18 @@ export class SupabaseStorage implements IStorage {
       const existingUser = await this.getUserByUsername("demo_lawyer");
       if (!existingUser) {
         // Create demo user
-        await db.insert(users).values({
+        const demoUser: User = {
+          id: this.generateId(),
           username: "demo_lawyer",
           password: "demo123",
           fullName: "Demo Lawyer",
           email: "demo@legalflow.com",
           phone: "+1 (555) 123-4567",
           barNumber: "BAR123456789",
-          practiceAreas: "Personal Injury, Corporate Law, Estate Planning"
-        }).onConflictDoNothing();
+          practiceAreas: "Personal Injury, Corporate Law, Estate Planning",
+          createdAt: new Date()
+        };
+        this.users.push(demoUser);
 
         // Create sample clients
         const clientsData = [
@@ -88,12 +95,16 @@ export class SupabaseStorage implements IStorage {
           }
         ];
 
+        const createdClients: Client[] = [];
         for (const clientData of clientsData) {
-          await db.insert(clients).values(clientData).onConflictDoNothing();
+          const client: Client = {
+            id: this.generateId(),
+            ...clientData,
+            createdAt: new Date()
+          };
+          this.clients.push(client);
+          createdClients.push(client);
         }
-
-        // Get created clients to reference in cases
-        const createdClients = await db.select().from(clients).limit(3);
 
         // Create sample cases
         const casesData = [
@@ -126,32 +137,36 @@ export class SupabaseStorage implements IStorage {
           }
         ];
 
+        const createdCases: Case[] = [];
         for (const caseData of casesData) {
           if (caseData.clientId) {
-            await db.insert(cases).values(caseData).onConflictDoNothing();
+            const newCase: Case = {
+              id: this.generateId(),
+              ...caseData,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            };
+            this.cases.push(newCase);
+            createdCases.push(newCase);
           }
         }
-
-        // Get created cases to reference in reminders
-        const createdCases = await db.select().from(cases).limit(3);
 
         // Create sample reminders
         const remindersData = [
           {
             title: "Court Hearing",
-            description: "Initial hearing for personal injury case",
+            description: "Personal injury case hearing",
             dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            location: "Courthouse Room 204",
-            type: "court",
+            location: "Courthouse Room 101",
+            type: "hearing",
             priority: "high",
             completed: false,
             caseId: createdCases[0]?.id
           },
           {
             title: "Client Meeting",
-            description: "Contract review meeting with TechCorp",
+            description: "Contract review meeting with client",
             dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-            location: "Law Office Conference Room",
             type: "meeting",
             priority: "medium",
             completed: false,
@@ -170,7 +185,19 @@ export class SupabaseStorage implements IStorage {
 
         for (const reminderData of remindersData) {
           if (reminderData.caseId) {
-            await db.insert(reminders).values(reminderData).onConflictDoNothing();
+            const reminder: Reminder = {
+              id: this.generateId(),
+              title: reminderData.title,
+              description: reminderData.description,
+              dueDate: reminderData.dueDate,
+              location: reminderData.location || null,
+              type: reminderData.type,
+              priority: reminderData.priority,
+              completed: reminderData.completed,
+              caseId: reminderData.caseId,
+              createdAt: new Date()
+            };
+            this.reminders.push(reminder);
           }
         }
       }
@@ -181,357 +208,201 @@ export class SupabaseStorage implements IStorage {
 
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    try {
-      const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-      return result[0];
-    } catch (error) {
-      console.error("Error getting user:", error);
-      return undefined;
-    }
+    return this.users.find(user => user.id === id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    try {
-      const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
-      return result[0];
-    } catch (error) {
-      console.error("Error getting user by username:", error);
-      return undefined;
-    }
+    return this.users.find(user => user.username === username);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    try {
-      const result = await db.insert(users).values(insertUser).returning();
-      return result[0];
-    } catch (error) {
-      console.error("Error creating user:", error);
-      throw error;
-    }
+    const newUser: User = {
+      id: this.generateId(),
+      username: insertUser.username,
+      password: insertUser.password,
+      fullName: insertUser.fullName || null,
+      email: insertUser.email || null,
+      phone: insertUser.phone || null,
+      barNumber: insertUser.barNumber || null,
+      practiceAreas: insertUser.practiceAreas || null,
+      createdAt: new Date()
+    };
+    this.users.push(newUser);
+    return newUser;
   }
 
   async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
-    try {
-      const result = await db.update(users).set(updates).where(eq(users.id, id)).returning();
-      return result[0];
-    } catch (error) {
-      console.error("Error updating user:", error);
-      return undefined;
-    }
+    const userIndex = this.users.findIndex(user => user.id === id);
+    if (userIndex === -1) return undefined;
+    
+    this.users[userIndex] = { ...this.users[userIndex], ...updates };
+    return this.users[userIndex];
   }
 
   // Client methods
   async getClients(): Promise<Client[]> {
-    try {
-      return await db.select().from(clients).orderBy(desc(clients.createdAt));
-    } catch (error) {
-      console.error("Error getting clients:", error);
-      return [];
-    }
+    return [...this.clients].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   async getClient(id: number): Promise<Client | undefined> {
-    try {
-      const result = await db.select().from(clients).where(eq(clients.id, id)).limit(1);
-      return result[0];
-    } catch (error) {
-      console.error("Error getting client:", error);
-      return undefined;
-    }
+    return this.clients.find(client => client.id === id);
   }
 
   async createClient(insertClient: InsertClient): Promise<Client> {
-    try {
-      const result = await db.insert(clients).values(insertClient).returning();
-      return result[0];
-    } catch (error) {
-      console.error("Error creating client:", error);
-      throw error;
-    }
+    const newClient: Client = {
+      id: this.generateId(),
+      name: insertClient.name,
+      email: insertClient.email || null,
+      phone: insertClient.phone || null,
+      address: insertClient.address || null,
+      status: insertClient.status || "active",
+      createdAt: new Date()
+    };
+    this.clients.push(newClient);
+    return newClient;
   }
 
   async updateClient(id: number, updates: Partial<InsertClient>): Promise<Client | undefined> {
-    try {
-      const result = await db.update(clients).set(updates).where(eq(clients.id, id)).returning();
-      return result[0];
-    } catch (error) {
-      console.error("Error updating client:", error);
-      return undefined;
-    }
+    const clientIndex = this.clients.findIndex(client => client.id === id);
+    if (clientIndex === -1) return undefined;
+    
+    this.clients[clientIndex] = { ...this.clients[clientIndex], ...updates };
+    return this.clients[clientIndex];
   }
 
   async deleteClient(id: number): Promise<boolean> {
-    try {
-      const result = await db.delete(clients).where(eq(clients.id, id));
-      return result.rowCount > 0;
-    } catch (error) {
-      console.error("Error deleting client:", error);
-      return false;
-    }
+    const clientIndex = this.clients.findIndex(client => client.id === id);
+    if (clientIndex === -1) return false;
+    
+    this.clients.splice(clientIndex, 1);
+    return true;
   }
 
   // Case methods
   async getCases(): Promise<CaseWithClient[]> {
-    try {
-      const result = await db
-        .select({
-          id: cases.id,
-          title: cases.title,
-          caseNumber: cases.caseNumber,
-          type: cases.type,
-          status: cases.status,
-          priority: cases.priority,
-          description: cases.description,
-          clientId: cases.clientId,
-          createdAt: cases.createdAt,
-          updatedAt: cases.updatedAt,
-          client: {
-            id: clients.id,
-            name: clients.name,
-            email: clients.email,
-            phone: clients.phone,
-            address: clients.address,
-            status: clients.status,
-            createdAt: clients.createdAt,
-          }
-        })
-        .from(cases)
-        .leftJoin(clients, eq(cases.clientId, clients.id))
-        .orderBy(desc(cases.updatedAt));
-
-      return result.map(row => ({
-        ...row,
-        client: row.client.id ? row.client : undefined
-      }));
-    } catch (error) {
-      console.error("Error getting cases:", error);
-      return [];
-    }
+    return this.cases.map(caseItem => ({
+      ...caseItem,
+      client: caseItem.clientId ? this.clients.find(c => c.id === caseItem.clientId) : undefined
+    })).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   async getCase(id: number): Promise<CaseWithClient | undefined> {
-    try {
-      const result = await db
-        .select({
-          id: cases.id,
-          title: cases.title,
-          caseNumber: cases.caseNumber,
-          type: cases.type,
-          status: cases.status,
-          priority: cases.priority,
-          description: cases.description,
-          clientId: cases.clientId,
-          createdAt: cases.createdAt,
-          updatedAt: cases.updatedAt,
-          client: {
-            id: clients.id,
-            name: clients.name,
-            email: clients.email,
-            phone: clients.phone,
-            address: clients.address,
-            status: clients.status,
-            createdAt: clients.createdAt,
-          }
-        })
-        .from(cases)
-        .leftJoin(clients, eq(cases.clientId, clients.id))
-        .where(eq(cases.id, id))
-        .limit(1);
-
-      if (result.length === 0) return undefined;
-      
-      const row = result[0];
-      return {
-        ...row,
-        client: row.client.id ? row.client : undefined
-      };
-    } catch (error) {
-      console.error("Error getting case:", error);
-      return undefined;
-    }
+    const caseItem = this.cases.find(c => c.id === id);
+    if (!caseItem) return undefined;
+    
+    return {
+      ...caseItem,
+      client: caseItem.clientId ? this.clients.find(c => c.id === caseItem.clientId) : undefined
+    };
   }
 
   async getCasesByClient(clientId: number): Promise<Case[]> {
-    try {
-      return await db.select().from(cases).where(eq(cases.clientId, clientId));
-    } catch (error) {
-      console.error("Error getting cases by client:", error);
-      return [];
-    }
+    return this.cases.filter(c => c.clientId === clientId);
   }
 
   async createCase(insertCase: InsertCase): Promise<Case> {
-    try {
-      const result = await db.insert(cases).values(insertCase).returning();
-      return result[0];
-    } catch (error) {
-      console.error("Error creating case:", error);
-      throw error;
-    }
+    const newCase: Case = {
+      id: this.generateId(),
+      title: insertCase.title,
+      caseNumber: insertCase.caseNumber || null,
+      type: insertCase.type,
+      status: insertCase.status || "active",
+      priority: insertCase.priority || "medium",
+      description: insertCase.description || null,
+      clientId: insertCase.clientId || null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.cases.push(newCase);
+    return newCase;
   }
 
   async updateCase(id: number, updates: Partial<InsertCase>): Promise<Case | undefined> {
-    try {
-      const result = await db.update(cases).set({ ...updates, updatedAt: new Date() }).where(eq(cases.id, id)).returning();
-      return result[0];
-    } catch (error) {
-      console.error("Error updating case:", error);
-      return undefined;
-    }
+    const caseIndex = this.cases.findIndex(c => c.id === id);
+    if (caseIndex === -1) return undefined;
+    
+    this.cases[caseIndex] = { 
+      ...this.cases[caseIndex], 
+      ...updates, 
+      updatedAt: new Date() 
+    };
+    return this.cases[caseIndex];
   }
 
   async deleteCase(id: number): Promise<boolean> {
-    try {
-      const result = await db.delete(cases).where(eq(cases.id, id));
-      return result.rowCount > 0;
-    } catch (error) {
-      console.error("Error deleting case:", error);
-      return false;
-    }
+    const caseIndex = this.cases.findIndex(c => c.id === id);
+    if (caseIndex === -1) return false;
+    
+    this.cases.splice(caseIndex, 1);
+    return true;
   }
 
   // Reminder methods
   async getReminders(): Promise<ReminderWithCase[]> {
-    try {
-      const result = await db
-        .select({
-          id: reminders.id,
-          title: reminders.title,
-          description: reminders.description,
-          dueDate: reminders.dueDate,
-          location: reminders.location,
-          type: reminders.type,
-          priority: reminders.priority,
-          completed: reminders.completed,
-          caseId: reminders.caseId,
-          createdAt: reminders.createdAt,
-          case: {
-            id: cases.id,
-            title: cases.title,
-            caseNumber: cases.caseNumber,
-            type: cases.type,
-            status: cases.status,
-            priority: cases.priority,
-            description: cases.description,
-            clientId: cases.clientId,
-            createdAt: cases.createdAt,
-            updatedAt: cases.updatedAt,
-          }
-        })
-        .from(reminders)
-        .leftJoin(cases, eq(reminders.caseId, cases.id))
-        .orderBy(asc(reminders.dueDate));
-
-      return result.map(row => ({
-        ...row,
-        case: row.case.id ? row.case : undefined
-      }));
-    } catch (error) {
-      console.error("Error getting reminders:", error);
-      return [];
-    }
+    return this.reminders.map(reminder => ({
+      ...reminder,
+      case: reminder.caseId ? this.cases.find(c => c.id === reminder.caseId) : undefined
+    })).sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
   }
 
   async getReminder(id: number): Promise<ReminderWithCase | undefined> {
-    try {
-      const result = await db
-        .select({
-          id: reminders.id,
-          title: reminders.title,
-          description: reminders.description,
-          dueDate: reminders.dueDate,
-          location: reminders.location,
-          type: reminders.type,
-          priority: reminders.priority,
-          completed: reminders.completed,
-          caseId: reminders.caseId,
-          createdAt: reminders.createdAt,
-          case: {
-            id: cases.id,
-            title: cases.title,
-            caseNumber: cases.caseNumber,
-            type: cases.type,
-            status: cases.status,
-            priority: cases.priority,
-            description: cases.description,
-            clientId: cases.clientId,
-            createdAt: cases.createdAt,
-            updatedAt: cases.updatedAt,
-          }
-        })
-        .from(reminders)
-        .leftJoin(cases, eq(reminders.caseId, cases.id))
-        .where(eq(reminders.id, id))
-        .limit(1);
-
-      if (result.length === 0) return undefined;
-      
-      const row = result[0];
-      return {
-        ...row,
-        case: row.case.id ? row.case : undefined
-      };
-    } catch (error) {
-      console.error("Error getting reminder:", error);
-      return undefined;
-    }
+    const reminder = this.reminders.find(r => r.id === id);
+    if (!reminder) return undefined;
+    
+    return {
+      ...reminder,
+      case: reminder.caseId ? this.cases.find(c => c.id === reminder.caseId) : undefined
+    };
   }
 
   async createReminder(insertReminder: InsertReminder): Promise<Reminder> {
-    try {
-      const result = await db.insert(reminders).values(insertReminder).returning();
-      return result[0];
-    } catch (error) {
-      console.error("Error creating reminder:", error);
-      throw error;
-    }
+    const newReminder: Reminder = {
+      id: this.generateId(),
+      title: insertReminder.title,
+      description: insertReminder.description || null,
+      dueDate: insertReminder.dueDate,
+      location: insertReminder.location || null,
+      type: insertReminder.type || "general",
+      priority: insertReminder.priority || "medium",
+      completed: insertReminder.completed || false,
+      caseId: insertReminder.caseId || null,
+      createdAt: new Date()
+    };
+    this.reminders.push(newReminder);
+    return newReminder;
   }
 
   async updateReminder(id: number, updates: Partial<InsertReminder>): Promise<Reminder | undefined> {
-    try {
-      const result = await db.update(reminders).set(updates).where(eq(reminders.id, id)).returning();
-      return result[0];
-    } catch (error) {
-      console.error("Error updating reminder:", error);
-      return undefined;
-    }
+    const reminderIndex = this.reminders.findIndex(r => r.id === id);
+    if (reminderIndex === -1) return undefined;
+    
+    this.reminders[reminderIndex] = { ...this.reminders[reminderIndex], ...updates };
+    return this.reminders[reminderIndex];
   }
 
   async deleteReminder(id: number): Promise<boolean> {
-    try {
-      const result = await db.delete(reminders).where(eq(reminders.id, id));
-      return result.rowCount > 0;
-    } catch (error) {
-      console.error("Error deleting reminder:", error);
-      return false;
-    }
+    const reminderIndex = this.reminders.findIndex(r => r.id === id);
+    if (reminderIndex === -1) return false;
+    
+    this.reminders.splice(reminderIndex, 1);
+    return true;
   }
 
+  // Dashboard stats
   async getDashboardStats(): Promise<DashboardStats> {
-    try {
-      const [totalCasesResult, activeCasesResult, totalClientsResult, pendingRemindersResult] = await Promise.all([
-        db.select({ count: count() }).from(cases),
-        db.select({ count: count() }).from(cases).where(eq(cases.status, 'active')),
-        db.select({ count: count() }).from(clients),
-        db.select({ count: count() }).from(reminders).where(and(eq(reminders.completed, false)))
-      ]);
+    const totalCases = this.cases.length;
+    const activeCases = this.cases.filter(c => c.status === 'active').length;
+    const totalClients = this.clients.length;
+    const pendingReminders = this.reminders.filter(r => !r.completed && r.dueDate > new Date()).length;
 
-      return {
-        totalCases: totalCasesResult[0]?.count || 0,
-        activeCases: activeCasesResult[0]?.count || 0,
-        totalClients: totalClientsResult[0]?.count || 0,
-        pendingReminders: pendingRemindersResult[0]?.count || 0,
-      };
-    } catch (error) {
-      console.error("Error getting dashboard stats:", error);
-      return {
-        totalCases: 0,
-        activeCases: 0,
-        totalClients: 0,
-        pendingReminders: 0,
-      };
-    }
+    return {
+      totalCases,
+      activeCases,
+      totalClients,
+      pendingReminders
+    };
   }
 }
 
-export const storage = new SupabaseStorage();
+// Export the storage instance
+export const storage = new MemStorage();
