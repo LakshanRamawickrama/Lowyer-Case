@@ -57,12 +57,12 @@ export function Sidebar() {
                         <a
                           className={cn(
                             isActive
-                              ? "bg-indigo-600 text-white"
+                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
                               : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
-                            "group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold transition-colors"
+                            "group flex gap-x-3 rounded-xl p-3 text-sm leading-6 font-semibold transition-all duration-200"
                           )}
                         >
-                          <item.icon className="h-5 w-5 shrink-0" />
+                          <item.icon className={cn("h-5 w-5 shrink-0 transition-transform group-hover:scale-110", isActive ? "text-white" : "text-sidebar-foreground/60 group-hover:text-primary")} />
                           {item.name}
                         </a>
                       </Link>

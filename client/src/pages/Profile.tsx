@@ -164,7 +164,7 @@ export default function Profile() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Information */}
         <div className="lg:col-span-2">
-          <Card className="bg-card border-border shadow-md">
+          <Card className="premium-card">
             <CardHeader className="border-b border-border/50">
               <CardTitle className="text-xl font-semibold text-foreground">Account Information</CardTitle>
             </CardHeader>
@@ -337,7 +337,7 @@ export default function Profile() {
         {/* Security & Preferences */}
         <div className="space-y-6">
           {/* Change Password */}
-          <Card className="bg-card border-border shadow-md">
+          <Card className="premium-card">
             <CardHeader className="border-b border-border/50">
               <CardTitle className="text-lg font-semibold text-foreground">Change Password</CardTitle>
             </CardHeader>
@@ -411,7 +411,7 @@ export default function Profile() {
           </Card>
 
           {/* Preferences */}
-          <Card className="bg-card border-border shadow-md">
+          <Card className="premium-card">
             <CardHeader className="border-b border-border/50">
               <CardTitle className="text-lg font-semibold text-foreground">Preferences</CardTitle>
             </CardHeader>
@@ -458,7 +458,7 @@ export default function Profile() {
           </Card>
 
           {/* Account Stats */}
-          <Card className="bg-card border-border shadow-md">
+          <Card className="premium-card">
             <CardHeader className="border-b border-border/50">
               <CardTitle className="text-lg font-semibold text-foreground">Account Statistics</CardTitle>
             </CardHeader>

@@ -182,55 +182,55 @@ export default function Reminders() {
 
       {/* Reminder Categories */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-red-500/5 dark:bg-red-500/10 border-red-500/20 dark:border-red-500/30">
+        <Card className="premium-card bg-red-500/5 dark:bg-red-500/10 border-red-500/10 dark:border-red-500/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">Urgent</h3>
                 <p className="text-2xl font-bold text-foreground mt-1">{urgentReminders.length}</p>
               </div>
-              <div className="w-12 h-12 bg-red-500/10 dark:bg-red-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center">
                 <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
-            <p className="text-sm text-red-700/70 dark:text-red-300">Due today or overdue</p>
+            <p className="text-sm text-muted-foreground">Due today or overdue</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-yellow-500/5 dark:bg-yellow-500/10 border-yellow-500/20 dark:border-yellow-500/30">
+        <Card className="premium-card bg-yellow-500/5 dark:bg-yellow-500/10 border-yellow-500/10 dark:border-yellow-500/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-yellow-600 dark:text-yellow-400">This Week</h3>
                 <p className="text-2xl font-bold text-foreground mt-1">{thisWeekReminders.length}</p>
               </div>
-              <div className="w-12 h-12 bg-yellow-500/10 dark:bg-yellow-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center">
                 <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
               </div>
             </div>
-            <p className="text-sm text-yellow-700/70 dark:text-yellow-300">Due within 7 days</p>
+            <p className="text-sm text-muted-foreground">Due within 7 days</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-green-500/5 dark:bg-green-500/10 border-green-500/20 dark:border-green-500/30">
+        <Card className="premium-card bg-green-500/5 dark:bg-green-500/10 border-green-500/10 dark:border-green-500/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-green-600 dark:text-green-400">Upcoming</h3>
                 <p className="text-2xl font-bold text-foreground mt-1">{upcomingReminders.length}</p>
               </div>
-              <div className="w-12 h-12 bg-green-500/10 dark:bg-green-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center">
                 <CalendarCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
             </div>
-            <p className="text-sm text-green-700/70 dark:text-green-300">Due later this month</p>
+            <p className="text-sm text-muted-foreground">Due later this month</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Reminders List */}
       {/* Reminders List */}
-      <Card className="bg-card border-border shadow-md">
+      <Card className="premium-card">
         <CardHeader className="border-b border-border/50">
           <CardTitle className="text-xl font-semibold text-foreground">All Reminders</CardTitle>
         </CardHeader>

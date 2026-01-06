@@ -183,7 +183,7 @@ export default function Clients() {
           </div>
         ) : (
           filteredClients.map((client) => (
-            <Card key={client.id} className="bg-card border-border hover:border-indigo-500/50 transition-all hover:shadow-md group">
+            <Card key={client.id} className="premium-card group">
               <CardContent className="p-4 lg:p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center min-w-0 flex-1">

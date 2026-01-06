@@ -162,7 +162,7 @@ export default function Dashboard() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-card border-border shadow-sm">
+        <Card className="premium-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -184,7 +184,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border shadow-sm">
+        <Card className="premium-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -206,7 +206,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border shadow-sm">
+        <Card className="premium-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -228,7 +228,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border shadow-sm">
+        <Card className="premium-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -255,7 +255,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Cases */}
         <div className="lg:col-span-2">
-          <Card className="bg-card border-border shadow-sm">
+          <Card className="premium-card">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-xl font-semibold text-foreground">Recent Cases</CardTitle>
               <Button
@@ -307,7 +307,7 @@ export default function Dashboard() {
         </div>
 
         {/* Upcoming Reminders */}
-        <Card className="bg-card border-border shadow-sm">
+        <Card className="premium-card">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-xl font-semibold text-foreground">Upcoming</CardTitle>
             <Button
