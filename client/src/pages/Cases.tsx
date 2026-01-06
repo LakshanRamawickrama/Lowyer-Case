@@ -15,8 +15,8 @@ import { CaseForm } from "@/components/CaseForm";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { useCases, useCreateCase, useDeleteCase } from "@/hooks/use-cases";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Plus, 
+import {
+  Plus,
   Search,
   Edit,
   Trash2,
@@ -36,21 +36,17 @@ export default function Cases() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
-  
+
   const { data: cases = [], isLoading } = useCases();
   const createCaseMutation = useCreateCase();
   const deleteCaseMutation = useDeleteCase();
 
   const getCaseIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "personal injury":
-        return <Gavel className="w-6 h-6 text-white" />;
-      case "estate law":
-        return <Handshake className="w-6 h-6 text-white" />;
-      case "corporate law":
-        return <Building className="w-6 h-6 text-white" />;
-      default:
-        return <Gavel className="w-6 h-6 text-white" />;
+    switch (type) {
+      case "Criminal Law": return <Gavel className="w-6 h-6" />;
+      case "Family Law": return <Handshake className="w-6 h-6" />;
+      case "Corporate Law": return <Building className="w-6 h-6" />;
+      default: return <Gavel className="w-6 h-6" />;
     }
   };
 
@@ -71,12 +67,12 @@ export default function Cases() {
 
   const filteredCases = cases.filter((caseItem) => {
     const matchesSearch = caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         caseItem.caseNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         caseItem.client?.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
+      caseItem.caseNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      caseItem.client?.name.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesStatus = statusFilter === "all" || caseItem.status === statusFilter;
     const matchesType = typeFilter === "all" || caseItem.type === typeFilter;
-    
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -127,10 +123,10 @@ export default function Cases() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Cases</h1>
-          <p className="text-slate-400 mt-1">Manage your legal cases and documentation</p>
+          <h1 className="text-3xl font-bold text-foreground">Cases</h1>
+          <p className="text-muted-foreground mt-1">Manage your legal cases and documentation</p>
         </div>
-        <Button 
+        <Button
           onClick={() => setIsFormOpen(true)}
           className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
         >
@@ -142,49 +138,48 @@ export default function Cases() {
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
             placeholder="Search cases..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-slate-400 h-10 text-sm lg:text-base"
+            className="pl-10 bg-card border-border text-foreground placeholder-muted-foreground h-10 text-sm lg:text-base"
           />
         </div>
-        
+
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[160px] lg:w-[180px] bg-slate-800 border-slate-700 text-white h-10 text-sm lg:text-base">
+          <SelectTrigger className="w-full sm:w-[160px] lg:w-[180px] bg-card border-border text-foreground h-10 text-sm lg:text-base">
             <Filter className="w-4 h-4 mr-2" />
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
-          <SelectContent className="bg-slate-800 border-slate-700">
-            <SelectItem value="all" className="text-white hover:bg-slate-700">All Status</SelectItem>
-            <SelectItem value="active" className="text-white hover:bg-slate-700">Active</SelectItem>
-            <SelectItem value="pending" className="text-white hover:bg-slate-700">Pending</SelectItem>
-            <SelectItem value="review" className="text-white hover:bg-slate-700">Review</SelectItem>
-            <SelectItem value="closed" className="text-white hover:bg-slate-700">Closed</SelectItem>
+          <SelectContent className="bg-card border-border">
+            <SelectItem value="all" className="text-foreground hover:bg-muted">All Status</SelectItem>
+            <SelectItem value="active" className="text-foreground hover:bg-muted">Active</SelectItem>
+            <SelectItem value="pending" className="text-foreground hover:bg-muted">Pending</SelectItem>
+            <SelectItem value="review" className="text-foreground hover:bg-muted">Review</SelectItem>
+            <SelectItem value="closed" className="text-foreground hover:bg-muted">Closed</SelectItem>
           </SelectContent>
         </Select>
 
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-full sm:w-[160px] lg:w-[180px] bg-slate-800 border-slate-700 text-white h-10 text-sm lg:text-base">
+          <SelectTrigger className="w-full sm:w-[160px] lg:w-[180px] bg-card border-border text-foreground h-10 text-sm lg:text-base">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
-          <SelectContent className="bg-slate-800 border-slate-700">
-            <SelectItem value="all" className="text-white hover:bg-slate-700">All Types</SelectItem>
-            <SelectItem value="Personal Injury" className="text-white hover:bg-slate-700">Personal Injury</SelectItem>
-            <SelectItem value="Corporate Law" className="text-white hover:bg-slate-700">Corporate Law</SelectItem>
-            <SelectItem value="Estate Law" className="text-white hover:bg-slate-700">Estate Law</SelectItem>
-            <SelectItem value="Criminal Law" className="text-white hover:bg-slate-700">Criminal Law</SelectItem>
-            <SelectItem value="Family Law" className="text-white hover:bg-slate-700">Family Law</SelectItem>
+          <SelectContent className="bg-card border-border">
+            <SelectItem value="all" className="text-foreground hover:bg-muted">All Types</SelectItem>
+            <SelectItem value="Personal Injury" className="text-foreground hover:bg-muted">Personal Injury</SelectItem>
+            <SelectItem value="Corporate Law" className="text-foreground hover:bg-muted">Corporate Law</SelectItem>
+            <SelectItem value="Estate Law" className="text-foreground hover:bg-muted">Estate Law</SelectItem>
+            <SelectItem value="Criminal Law" className="text-foreground hover:bg-muted">Criminal Law</SelectItem>
+            <SelectItem value="Family Law" className="text-foreground hover:bg-muted">Family Law</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Cases Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
         {isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="bg-slate-800 border-slate-700">
+          Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="bg-card border-border animate-pulse">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center">
@@ -194,99 +189,91 @@ export default function Cases() {
                       <Skeleton className="h-3 w-24" />
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Skeleton className="w-8 h-8 rounded" />
-                    <Skeleton className="w-8 h-8 rounded" />
-                  </div>
                 </div>
                 <div className="space-y-3">
                   <Skeleton className="h-3 w-full" />
                   <Skeleton className="h-3 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                </div>
-                <div className="mt-4 pt-4 border-t border-slate-700">
-                  <Skeleton className="h-10 w-full" />
                 </div>
               </CardContent>
             </Card>
           ))
         ) : filteredCases.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 bg-slate-700 rounded-full flex items-center justify-center">
-              <Gavel className="w-8 h-8 text-slate-400" />
+            <div className="w-20 h-20 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+              <Gavel className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium text-white mb-2">No cases found</h3>
-            <p className="text-slate-400 mb-6">
-              {searchTerm || statusFilter !== "all" || typeFilter !== "all" 
-                ? "Try adjusting your search or filters" 
-                : "Get started by creating your first case"}
+            <h3 className="text-xl font-medium text-foreground mb-2">No cases found</h3>
+            <p className="text-muted-foreground mb-6">
+              {searchTerm || statusFilter !== "all" || typeFilter !== "all"
+                ? "Try adjusting your search or filters"
+                : "Get started by creating your first legal case"}
             </p>
-            <Button 
+            <Button
               onClick={() => setIsFormOpen(true)}
-              className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white h-9 text-sm px-3"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Add Case
+              <Plus className="w-4 h-4 mr-2" />
+              Add Your First Case
             </Button>
           </div>
         ) : (
           filteredCases.map((caseItem) => (
-            <Card key={caseItem.id} className="bg-slate-800 border-slate-700 hover:border-indigo-500 transition-all hover:shadow-lg">
+            <Card key={caseItem.id} className="bg-card border-border hover:border-indigo-500/50 transition-all hover:shadow-md group">
               <CardContent className="p-4 lg:p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center min-w-0 flex-1">
-                    <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                    <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 shadow-sm shadow-indigo-500/20">
                       {getCaseIcon(caseItem.type)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-white text-sm lg:text-base truncate">{caseItem.title}</h3>
-                      <p className="text-xs lg:text-sm text-slate-400 truncate">{caseItem.caseNumber}</p>
+                      <h3 className="font-semibold text-foreground text-sm lg:text-base truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{caseItem.title}</h3>
+                      <p className="text-xs lg:text-sm text-muted-foreground truncate font-mono uppercase tracking-wider">{caseItem.caseNumber}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-1 lg:space-x-2 ml-2">
+                  <div className="flex items-center space-x-1 lg:space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="p-1 lg:p-2 text-slate-400 hover:text-white h-8 w-8"
+                      className="p-1 lg:p-2 text-muted-foreground hover:text-foreground h-8 w-8"
                     >
                       <Edit className="w-3 h-3 lg:w-4 lg:h-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="p-1 lg:p-2 text-slate-400 hover:text-red-400 h-8 w-8"
+                      className="p-1 lg:p-2 text-muted-foreground hover:text-red-500 h-8 w-8"
                       onClick={() => handleDeleteCase(caseItem)}
                     >
                       <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
                     </Button>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2 lg:space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs lg:text-sm text-slate-400">Type:</span>
-                    <span className="text-xs lg:text-sm text-white truncate ml-2">{caseItem.type}</span>
+                  <div className="flex items-center justify-between text-xs lg:text-sm">
+                    <span className="text-muted-foreground">Type:</span>
+                    <span className="text-foreground font-medium truncate ml-2">{caseItem.type}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs lg:text-sm text-slate-400">Client:</span>
-                    <span className="text-xs lg:text-sm text-white truncate ml-2">{caseItem.client?.name || "Unassigned"}</span>
+                  <div className="flex items-center justify-between text-xs lg:text-sm">
+                    <span className="text-muted-foreground">Client:</span>
+                    <span className="text-foreground font-medium truncate ml-2">{caseItem.client?.name || "Unassigned"}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs lg:text-sm text-slate-400">Status:</span>
-                    <Badge className={`text-xs ${getStatusColor(caseItem.status)}`}>
+                  <div className="flex items-center justify-between text-xs lg:text-sm">
+                    <span className="text-muted-foreground">Status:</span>
+                    <Badge variant="outline" className={`${getStatusColor(caseItem.status)} border-none py-0 px-2`}>
                       {caseItem.status}
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs lg:text-sm text-slate-400">Created:</span>
-                    <span className="text-xs lg:text-sm text-white">
+                  <div className="flex items-center justify-between text-xs lg:text-sm">
+                    <span className="text-muted-foreground">Created:</span>
+                    <span className="text-foreground font-medium">
                       {format(new Date(caseItem.createdAt), "MMM d, yyyy")}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-slate-700">
-                  <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white h-8 lg:h-10 text-xs lg:text-sm">
+                <div className="mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-border/50">
+                  <Button className="w-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border-none h-8 lg:h-10 text-xs lg:text-sm font-medium transition-colors">
                     View Details
                   </Button>
                 </div>

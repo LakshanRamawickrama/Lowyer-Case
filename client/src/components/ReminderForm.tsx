@@ -52,15 +52,15 @@ const priorityOptions = [
   { value: "urgent", label: "Urgent" },
 ];
 
-export function ReminderForm({ 
-  open, 
-  onOpenChange, 
-  onSubmit, 
+export function ReminderForm({
+  open,
+  onOpenChange,
+  onSubmit,
   isLoading = false,
-  initialData 
+  initialData
 }: ReminderFormProps) {
   const { data: cases = [] } = useCases();
-  
+
   const form = useForm<InsertReminder>({
     resolver: zodResolver(insertReminderSchema),
     defaultValues: {
@@ -92,12 +92,12 @@ export function ReminderForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-800 border-slate-700 max-w-4xl max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="bg-card border-border max-w-4xl max-h-[90vh] overflow-y-auto sm:max-w-2xl shadow-2xl">
         <DialogHeader className="space-y-2 pb-4">
-          <DialogTitle className="text-xl font-semibold text-white">
+          <DialogTitle className="text-2xl font-bold text-foreground">
             {initialData ? "Edit Reminder" : "Add New Reminder"}
           </DialogTitle>
-          <DialogDescription className="text-slate-400 text-sm">
+          <DialogDescription className="text-muted-foreground text-sm">
             {initialData ? "Update reminder information." : "Create a new reminder for important dates and deadlines."}
           </DialogDescription>
         </DialogHeader>
@@ -110,15 +110,15 @@ export function ReminderForm({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm font-medium">Title *</FormLabel>
+                  <FormLabel className="text-foreground/80 text-sm font-medium">Title *</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Enter reminder title" 
-                      className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 h-10 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      {...field} 
+                    <Input
+                      placeholder="Enter reminder title"
+                      className="bg-card border-border text-foreground placeholder-muted-foreground h-11 focus:ring-2 focus:ring-indigo-500"
+                      {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-400 text-xs" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -130,22 +130,22 @@ export function ReminderForm({
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300 text-sm font-medium">Type</FormLabel>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">Type</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white h-10 focus:ring-2 focus:ring-indigo-500">
+                        <SelectTrigger className="bg-card border-border text-foreground h-11 focus:ring-2 focus:ring-indigo-500">
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectContent className="bg-card border-border">
                         {reminderTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value} className="text-white hover:bg-slate-700 focus:bg-slate-700">
+                          <SelectItem key={type.value} value={type.value} className="hover:bg-muted focus:bg-muted transition-colors">
                             {type.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-red-400 text-xs" />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -155,22 +155,22 @@ export function ReminderForm({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300 text-sm font-medium">Priority</FormLabel>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">Priority</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white h-10 focus:ring-2 focus:ring-indigo-500">
+                        <SelectTrigger className="bg-card border-border text-foreground h-11 focus:ring-2 focus:ring-indigo-500">
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectContent className="bg-card border-border">
                         {priorityOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value} className="text-white hover:bg-slate-700 focus:bg-slate-700">
+                          <SelectItem key={option.value} value={option.value} className="hover:bg-muted focus:bg-muted transition-colors">
                             {option.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-red-400 text-xs" />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -183,16 +183,16 @@ export function ReminderForm({
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300 text-sm font-medium">Due Date & Time *</FormLabel>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">Due Date & Time *</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         type="datetime-local"
-                        className="bg-slate-700 border-slate-600 text-white h-10 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="bg-card border-border text-foreground h-11 focus:ring-2 focus:ring-indigo-500"
                         value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
                         onChange={(e) => field.onChange(new Date(e.target.value))}
                       />
                     </FormControl>
-                    <FormMessage className="text-red-400 text-xs" />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -202,28 +202,28 @@ export function ReminderForm({
                 name="caseId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300 text-sm font-medium">Related Case</FormLabel>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">Related Case</FormLabel>
                     <Select onValueChange={(value) => field.onChange(value === "none" ? undefined : parseInt(value))} value={field.value?.toString() || "none"}>
                       <FormControl>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white h-10 focus:ring-2 focus:ring-indigo-500">
+                        <SelectTrigger className="bg-card border-border text-foreground h-11 focus:ring-2 focus:ring-indigo-500">
                           <SelectValue placeholder="Select case (optional)" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-800 border-slate-600 max-h-48">
-                        <SelectItem value="none" className="text-slate-400 hover:bg-slate-700">
+                      <SelectContent className="bg-card border-border max-h-48">
+                        <SelectItem value="none" className="text-muted-foreground hover:bg-muted">
                           No case selected
                         </SelectItem>
                         {cases.map((caseItem) => (
-                          <SelectItem key={caseItem.id} value={caseItem.id.toString()} className="text-white hover:bg-slate-700 focus:bg-slate-700">
+                          <SelectItem key={caseItem.id} value={caseItem.id.toString()} className="hover:bg-muted focus:bg-muted transition-colors">
                             <div className="flex flex-col">
-                              <span className="font-medium">{caseItem.title}</span>
-                              <span className="text-xs text-slate-400">{caseItem.caseNumber}</span>
+                              <span className="font-medium text-foreground">{caseItem.title}</span>
+                              <span className="text-xs text-muted-foreground">{caseItem.caseNumber}</span>
                             </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-red-400 text-xs" />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -235,16 +235,16 @@ export function ReminderForm({
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm font-medium">Location</FormLabel>
+                  <FormLabel className="text-foreground/80 text-sm font-medium">Location</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Enter location or address" 
-                      className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 h-10 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    <Input
+                      placeholder="Enter location or address"
+                      className="bg-card border-border text-foreground placeholder-muted-foreground h-11 focus:ring-2 focus:ring-indigo-500"
                       {...field}
                       value={field.value || ""}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-400 text-xs" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -255,35 +255,35 @@ export function ReminderForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm font-medium">Description</FormLabel>
+                  <FormLabel className="text-foreground/80 text-sm font-medium">Description</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Enter reminder description and notes"
-                      className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="bg-card border-border text-foreground placeholder-muted-foreground resize-none focus:ring-2 focus:ring-indigo-500"
                       rows={3}
                       {...field}
                       value={field.value || ""}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-400 text-xs" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
 
             {/* Action Buttons */}
-            <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-700">
+            <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border/50">
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={() => onOpenChange(false)}
-                className="w-full sm:w-auto order-2 sm:order-1 bg-slate-700 hover:bg-slate-600 text-white border-slate-600 hover:border-slate-500 h-10"
+                className="w-full sm:w-auto order-2 sm:order-1 text-muted-foreground hover:text-foreground h-11"
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isLoading}
-                className="w-full sm:w-auto order-1 sm:order-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white h-10 font-medium"
+                className="w-full sm:w-auto order-1 sm:order-2 bg-indigo-600 hover:bg-indigo-700 text-white h-11 font-bold"
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">

@@ -55,31 +55,32 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-600/5 pointer-events-none" />
       <div className="w-full max-w-md">
         {/* Logo Section */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+        <div className="text-center mb-8 relative z-10">
+          <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-500/20">
             <Scale className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">LegalFlow</h1>
-          <p className="text-slate-400">Professional Case Management</p>
+          <h1 className="text-4xl font-extrabold text-foreground tracking-tight mb-2">LegalFlow</h1>
+          <p className="text-muted-foreground font-medium">Professional Case Management</p>
         </div>
 
         {/* Login Form */}
-        <Card className="bg-slate-800/60 backdrop-blur-lg border-slate-700 shadow-2xl">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-center text-white">
+        <Card className="bg-card/80 backdrop-blur-md border-border shadow-2xl relative z-10">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center text-foreground">
               Sign In
             </CardTitle>
-            <CardDescription className="text-center text-slate-400">
+            <CardDescription className="text-center text-muted-foreground">
               Enter your credentials to access your account
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-slate-300">
+                <Label htmlFor="username" className="text-foreground/80 font-medium">
                   Username
                 </Label>
                 <Input
@@ -88,29 +89,34 @@ export default function Login() {
                   placeholder="Enter your username"
                   value={credentials.username}
                   onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                  className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                  className="bg-card border-border text-foreground placeholder-muted-foreground h-11"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-300">
-                  Password
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-foreground/80 font-medium">
+                    Password
+                  </Label>
+                  <Button variant="link" className="text-xs text-indigo-600 dark:text-indigo-400 p-0 h-auto">
+                    Forgot password?
+                  </Button>
+                </div>
                 <Input
                   id="password"
                   type="password"
                   placeholder="Enter your password"
                   value={credentials.password}
                   onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                  className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                  className="bg-card border-border text-foreground placeholder-muted-foreground h-11"
                   required
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-3 transition-all duration-200 transform hover:scale-105"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 transition-all duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing In..." : "Sign In"}

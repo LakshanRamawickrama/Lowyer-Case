@@ -60,15 +60,15 @@ const priorityOptions = [
   { value: "urgent", label: "Urgent" },
 ];
 
-export function CaseForm({ 
-  open, 
-  onOpenChange, 
-  onSubmit, 
+export function CaseForm({
+  open,
+  onOpenChange,
+  onSubmit,
   isLoading = false,
-  initialData 
+  initialData
 }: CaseFormProps) {
   const { data: clients = [] } = useClients();
-  
+
   const form = useForm<InsertCase>({
     resolver: zodResolver(insertCaseSchema),
     defaultValues: {
@@ -89,12 +89,12 @@ export function CaseForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="text-white">
+          <DialogTitle className="text-foreground text-2xl font-bold">
             {initialData ? "Edit Case" : "Add New Case"}
           </DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-muted-foreground">
             {initialData ? "Update case information." : "Create a new legal case."}
           </DialogDescription>
         </DialogHeader>
@@ -107,12 +107,12 @@ export function CaseForm({
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300">Case Title *</FormLabel>
+                    <FormLabel className="text-foreground/80 font-medium">Case Title *</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter case title" 
-                        className="bg-slate-700 border-slate-600 text-white"
-                        {...field} 
+                      <Input
+                        placeholder="Enter case title"
+                        className="bg-card border-border text-foreground focus:ring-indigo-500"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -125,12 +125,12 @@ export function CaseForm({
                 name="caseNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300">Case Number</FormLabel>
+                    <FormLabel className="text-foreground/80 font-medium">Case Number</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Auto-generated if empty" 
-                        className="bg-slate-700 border-slate-600 text-white"
-                        {...field} 
+                      <Input
+                        placeholder="Auto-generated if empty"
+                        className="bg-card border-border text-foreground focus:ring-indigo-500"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -145,16 +145,16 @@ export function CaseForm({
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300">Case Type *</FormLabel>
+                    <FormLabel className="text-foreground/80 font-medium">Case Type *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                        <SelectTrigger className="bg-card border-border text-foreground focus:ring-indigo-500">
                           <SelectValue placeholder="Select case type" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectContent className="bg-card border-border">
                         {caseTypes.map((type) => (
-                          <SelectItem key={type} value={type} className="text-white hover:bg-slate-700">
+                          <SelectItem key={type} value={type} className="hover:bg-muted transition-colors">
                             {type}
                           </SelectItem>
                         ))}
@@ -170,16 +170,16 @@ export function CaseForm({
                 name="clientId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300">Client *</FormLabel>
+                    <FormLabel className="text-foreground/80 font-medium">Client *</FormLabel>
                     <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value?.toString()}>
                       <FormControl>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                        <SelectTrigger className="bg-card border-border text-foreground focus:ring-indigo-500">
                           <SelectValue placeholder="Select client" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectContent className="bg-card border-border">
                         {clients.map((client) => (
-                          <SelectItem key={client.id} value={client.id.toString()} className="text-white hover:bg-slate-700">
+                          <SelectItem key={client.id} value={client.id.toString()} className="hover:bg-muted transition-colors">
                             {client.name}
                           </SelectItem>
                         ))}
@@ -197,16 +197,16 @@ export function CaseForm({
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300">Status</FormLabel>
+                    <FormLabel className="text-foreground/80 font-medium">Status</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                        <SelectTrigger className="bg-card border-border text-foreground focus:ring-indigo-500">
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectContent className="bg-card border-border">
                         {statusOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value} className="text-white hover:bg-slate-700">
+                          <SelectItem key={option.value} value={option.value} className="hover:bg-muted transition-colors">
                             {option.label}
                           </SelectItem>
                         ))}
@@ -222,16 +222,16 @@ export function CaseForm({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300">Priority</FormLabel>
+                    <FormLabel className="text-foreground/80 font-medium">Priority</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                        <SelectTrigger className="bg-card border-border text-foreground focus:ring-indigo-500">
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectContent className="bg-card border-border">
                         {priorityOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value} className="text-white hover:bg-slate-700">
+                          <SelectItem key={option.value} value={option.value} className="hover:bg-muted transition-colors">
                             {option.label}
                           </SelectItem>
                         ))}
@@ -248,13 +248,13 @@ export function CaseForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300">Description</FormLabel>
+                  <FormLabel className="text-foreground/80 font-medium">Description</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Enter case description and details"
-                      className="bg-slate-700 border-slate-600 text-white resize-none"
+                      className="bg-card border-border text-foreground resize-none focus:ring-indigo-500"
                       rows={4}
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -262,21 +262,21 @@ export function CaseForm({
               )}
             />
 
-            <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4 border-t border-slate-700">
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6 border-t border-border/50">
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={() => onOpenChange(false)}
-                className="w-full sm:flex-1 bg-slate-600 hover:bg-slate-500 text-white border-slate-500 h-9 text-sm"
+                className="w-full sm:flex-1 text-muted-foreground hover:text-foreground h-10"
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isLoading}
-                className="w-full sm:flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white h-9 text-sm"
+                className="w-full sm:flex-1 bg-indigo-600 hover:bg-indigo-700 text-white h-10 font-bold"
               >
-                {isLoading ? "Saving..." : initialData ? "Update" : "Add Case"}
+                {isLoading ? "Saving..." : initialData ? "Update Case" : "Add Case"}
               </Button>
             </DialogFooter>
           </form>

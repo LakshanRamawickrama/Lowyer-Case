@@ -41,12 +41,12 @@ const statusOptions = [
   { value: "inactive", label: "Inactive" },
 ];
 
-export function ClientForm({ 
-  open, 
-  onOpenChange, 
-  onSubmit, 
+export function ClientForm({
+  open,
+  onOpenChange,
+  onSubmit,
   isLoading = false,
-  initialData 
+  initialData
 }: ClientFormProps) {
   const form = useForm<InsertClient>({
     resolver: zodResolver(insertClientSchema),
@@ -66,12 +66,12 @@ export function ClientForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="text-white text-lg lg:text-xl">
+          <DialogTitle className="text-foreground text-xl lg:text-2xl font-bold">
             {initialData ? "Edit Client" : "Add New Client"}
           </DialogTitle>
-          <DialogDescription className="text-slate-400 text-sm">
+          <DialogDescription className="text-muted-foreground text-sm">
             {initialData ? "Update client information." : "Add a new client to your database."}
           </DialogDescription>
         </DialogHeader>
@@ -84,12 +84,12 @@ export function ClientForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300 text-sm font-medium">Full Name *</FormLabel>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">Full Name *</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter full name" 
-                        className="bg-slate-700 border-slate-600 text-white h-10 text-sm"
-                        {...field} 
+                      <Input
+                        placeholder="Enter full name"
+                        className="bg-card border-border text-foreground h-11 text-sm focus:ring-indigo-500"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -102,12 +102,12 @@ export function ClientForm({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300 text-sm font-medium">Email</FormLabel>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">Email Address</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         type="email"
-                        placeholder="Enter email address" 
-                        className="bg-slate-700 border-slate-600 text-white h-10 text-sm"
+                        placeholder="Enter email address"
+                        className="bg-card border-border text-foreground h-11 text-sm focus:ring-indigo-500"
                         {...field}
                         value={field.value || ""}
                       />
@@ -124,11 +124,11 @@ export function ClientForm({
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300 text-sm font-medium">Phone</FormLabel>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">Phone Number</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter phone number" 
-                        className="bg-slate-700 border-slate-600 text-white h-10 text-sm"
+                      <Input
+                        placeholder="Enter phone number"
+                        className="bg-card border-border text-foreground h-11 text-sm focus:ring-indigo-500"
                         {...field}
                         value={field.value || ""}
                       />
@@ -143,16 +143,16 @@ export function ClientForm({
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-300 text-sm font-medium">Status</FormLabel>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">Status</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white h-10">
+                        <SelectTrigger className="bg-card border-border text-foreground h-11 focus:ring-indigo-500">
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectContent className="bg-card border-border text-foreground">
                         {statusOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value} className="text-white hover:bg-slate-700">
+                          <SelectItem key={option.value} value={option.value} className="hover:bg-muted transition-colors">
                             {option.label}
                           </SelectItem>
                         ))}
@@ -169,11 +169,11 @@ export function ClientForm({
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm font-medium">Address</FormLabel>
+                  <FormLabel className="text-foreground/80 text-sm font-medium">Address</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Enter full address"
-                      className="bg-slate-700 border-slate-600 text-white resize-none text-sm"
+                      className="bg-card border-border text-foreground resize-none text-sm focus:ring-indigo-500"
                       rows={3}
                       {...field}
                       value={field.value || ""}
@@ -184,19 +184,19 @@ export function ClientForm({
               )}
             />
 
-            <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4 border-t border-slate-700">
+            <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border/50">
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={() => onOpenChange(false)}
-                className="w-full sm:flex-1 bg-slate-600 hover:bg-slate-500 text-white border-slate-500 h-10"
+                className="w-full sm:flex-1 text-muted-foreground hover:text-foreground h-11"
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isLoading}
-                className="w-full sm:flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white h-10"
+                className="w-full sm:flex-1 bg-indigo-600 hover:bg-indigo-700 text-white h-11 font-bold"
               >
                 {isLoading ? "Saving..." : initialData ? "Update Client" : "Add Client"}
               </Button>

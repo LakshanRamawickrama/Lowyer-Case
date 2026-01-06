@@ -29,27 +29,27 @@ export function DeleteConfirmationDialog({
 }: DeleteConfirmationDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-slate-800 border-slate-700">
+      <AlertDialogContent className="bg-card border-border shadow-2xl">
         <AlertDialogHeader>
-          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-500/20 rounded-full">
-            <AlertTriangle className="w-8 h-8 text-red-400" />
+          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full">
+            <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
           </div>
-          <AlertDialogTitle className="text-center text-white">
+          <AlertDialogTitle className="text-center text-foreground font-bold text-xl">
             {title}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-center text-slate-400">
+          <AlertDialogDescription className="text-center text-muted-foreground">
             {itemName ? `Are you sure you want to delete "${itemName}"? This action cannot be undone.` : description}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex space-x-4">
-          <AlertDialogCancel className="flex-1 bg-slate-600 hover:bg-slate-500 text-white border-slate-500">
+        <AlertDialogFooter className="sm:space-x-4">
+          <AlertDialogCancel className="flex-1 bg-muted hover:bg-muted/80 text-foreground border-border">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold"
           >
-            Delete
+            Delete Item
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

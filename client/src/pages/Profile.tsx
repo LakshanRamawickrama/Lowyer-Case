@@ -17,6 +17,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useToast } from "@/hooks/use-toast";
@@ -150,33 +157,33 @@ export default function Profile() {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Profile Settings</h1>
-        <p className="text-slate-400">Manage your account information and preferences</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Profile Settings</h1>
+        <p className="text-muted-foreground">Manage your account information and preferences</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Information */}
         <div className="lg:col-span-2">
-          <Card className="bg-slate-800 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-white">Account Information</CardTitle>
+          <Card className="bg-card border-border shadow-md">
+            <CardHeader className="border-b border-border/50">
+              <CardTitle className="text-xl font-semibold text-foreground">Account Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-6">
               {/* Avatar Section */}
               <div className="flex items-center space-x-6">
-                <Avatar className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600">
+                <Avatar className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/20">
                   <AvatarFallback className="text-2xl font-bold text-white bg-transparent">
                     {getInitials(user.fullName || user.username)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h4 className="text-lg font-semibold text-white">
+                  <h4 className="text-lg font-semibold text-foreground">
                     {user.fullName || user.username}
                   </h4>
-                  <p className="text-slate-400">Legal Professional</p>
+                  <p className="text-muted-foreground">Legal Professional</p>
                   <Button
                     variant="link"
-                    className="text-indigo-400 hover:text-indigo-300 p-0 h-auto text-sm mt-1"
+                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 p-0 h-auto text-sm mt-1"
                     onClick={() => {
                       // Generate new avatar colors based on name
                       const newInitials = getInitials(user?.fullName || user?.username || "U");
@@ -196,13 +203,13 @@ export default function Profile() {
                 <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label className="text-slate-300">Username</Label>
+                      <Label className="text-foreground/70">Username</Label>
                       <Input
                         value={user.username}
                         disabled
-                        className="bg-slate-700 border-slate-600 text-slate-400"
+                        className="bg-muted border-border text-muted-foreground mt-1.5"
                       />
-                      <p className="text-xs text-slate-500 mt-1">Username cannot be changed</p>
+                      <p className="text-xs text-muted-foreground mt-1">Username cannot be changed</p>
                     </div>
 
                     <FormField
@@ -210,10 +217,10 @@ export default function Profile() {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-300">Full Name</FormLabel>
+                          <FormLabel className="text-foreground/70">Full Name</FormLabel>
                           <FormControl>
                             <Input
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-card border-border text-foreground"
                               {...field}
                               value={field.value || ""}
                             />
@@ -230,11 +237,11 @@ export default function Profile() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-300">Email</FormLabel>
+                          <FormLabel className="text-foreground/70">Email Address</FormLabel>
                           <FormControl>
                             <Input
                               type="email"
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-card border-border text-foreground"
                               {...field}
                               value={field.value || ""}
                             />
@@ -249,11 +256,11 @@ export default function Profile() {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-300">Phone</FormLabel>
+                          <FormLabel className="text-foreground/70">Phone Number</FormLabel>
                           <FormControl>
                             <Input
                               type="tel"
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-card border-border text-foreground"
                               {...field}
                               value={field.value || ""}
                             />
@@ -262,16 +269,18 @@ export default function Profile() {
                         </FormItem>
                       )}
                     />
+                  </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={profileForm.control}
                       name="barNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-300">Bar Number</FormLabel>
+                          <FormLabel className="text-foreground/70">Bar Number</FormLabel>
                           <FormControl>
                             <Input
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-card border-border text-foreground"
                               {...field}
                               value={field.value || ""}
                             />
@@ -288,10 +297,10 @@ export default function Profile() {
                       name="practiceAreas"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-300">Practice Areas</FormLabel>
+                          <FormLabel className="text-foreground/70">Practice Areas</FormLabel>
                           <FormControl>
                             <Textarea
-                              className="bg-slate-700 border-slate-600 text-white min-h-[100px]"
+                              className="bg-card border-border text-foreground min-h-[100px]"
                               {...field}
                               value={field.value || ""}
                             />
@@ -306,8 +315,8 @@ export default function Profile() {
                   <div className="flex justify-end space-x-4">
                     <Button
                       type="button"
-                      variant="outline"
-                      className="bg-slate-600 hover:bg-slate-500 text-white border-slate-500"
+                      variant="ghost"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       Cancel
                     </Button>
@@ -328,11 +337,11 @@ export default function Profile() {
         {/* Security & Preferences */}
         <div className="space-y-6">
           {/* Change Password */}
-          <Card className="bg-slate-800 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-white">Change Password</CardTitle>
+          <Card className="bg-card border-border shadow-md">
+            <CardHeader className="border-b border-border/50">
+              <CardTitle className="text-lg font-semibold text-foreground">Change Password</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <Form {...passwordForm}>
                 <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-4">
                   <FormField
@@ -340,11 +349,11 @@ export default function Profile() {
                     name="currentPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-300">Current Password</FormLabel>
+                        <FormLabel className="text-foreground/70">Current Password</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-card border-border text-foreground"
                             {...field}
                           />
                         </FormControl>
@@ -358,11 +367,11 @@ export default function Profile() {
                     name="newPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-300">New Password</FormLabel>
+                        <FormLabel className="text-foreground/70">New Password</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-card border-border text-foreground"
                             {...field}
                           />
                         </FormControl>
@@ -376,11 +385,11 @@ export default function Profile() {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-300">Confirm Password</FormLabel>
+                        <FormLabel className="text-foreground/70">Confirm New Password</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-card border-border text-foreground"
                             {...field}
                           />
                         </FormControl>
@@ -392,7 +401,7 @@ export default function Profile() {
                   <Button
                     type="submit"
                     disabled={changePasswordMutation.isPending}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
                   >
                     {changePasswordMutation.isPending ? "Updating..." : "Update Password"}
                   </Button>
@@ -402,15 +411,15 @@ export default function Profile() {
           </Card>
 
           {/* Preferences */}
-          <Card className="bg-slate-800 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-white">Preferences</CardTitle>
+          <Card className="bg-card border-border shadow-md">
+            <CardHeader className="border-b border-border/50">
+              <CardTitle className="text-lg font-semibold text-foreground">Preferences</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6 pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-white">Email Notifications</h4>
-                  <p className="text-sm text-slate-400">Receive email alerts for case updates</p>
+                  <h4 className="font-medium text-foreground">Email Notifications</h4>
+                  <p className="text-sm text-muted-foreground">Case updates and alerts</p>
                 </div>
                 <Switch
                   checked={emailNotifications}
@@ -420,8 +429,8 @@ export default function Profile() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-white">Push Notifications</h4>
-                  <p className="text-sm text-slate-400">Get push notifications for reminders</p>
+                  <h4 className="font-medium text-foreground">Push Notifications</h4>
+                  <p className="text-sm text-muted-foreground">Reminders and appointments</p>
                 </div>
                 <Switch
                   checked={pushNotifications}
@@ -431,40 +440,46 @@ export default function Profile() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-white">Dark Mode</h4>
-                  <p className="text-sm text-slate-400">Use dark theme interface</p>
+                  <h4 className="font-medium text-foreground">Interface Theme</h4>
+                  <p className="text-sm text-muted-foreground">Select your preferred appearance</p>
                 </div>
-                <Switch
-                  checked={theme === "dark"}
-                  onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
-                />
+                <Select value={theme} onValueChange={(value: any) => setTheme(value)}>
+                  <SelectTrigger className="w-[140px] bg-card border-border">
+                    <SelectValue placeholder="Select theme" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
 
           {/* Account Stats */}
-          <Card className="bg-slate-800 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-white">Account Statistics</CardTitle>
+          <Card className="bg-card border-border shadow-md">
+            <CardHeader className="border-b border-border/50">
+              <CardTitle className="text-lg font-semibold text-foreground">Account Statistics</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400">Member Since</span>
-                <span className="text-white font-medium">
+            <CardContent className="space-y-4 pt-6">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Member Since</span>
+                <span className="text-foreground font-semibold">
                   {format(new Date(user.createdAt), "MMM yyyy")}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400">Total Cases</span>
-                <span className="text-white font-medium">3</span>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Total Cases</span>
+                <span className="text-foreground font-semibold">3</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400">Active Cases</span>
-                <span className="text-white font-medium">1</span>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Active Cases</span>
+                <span className="text-foreground font-semibold">1</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400">Completed Cases</span>
-                <span className="text-white font-medium">2</span>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Completed Cases</span>
+                <span className="text-foreground font-semibold">2</span>
               </div>
             </CardContent>
           </Card>

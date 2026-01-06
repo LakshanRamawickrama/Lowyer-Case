@@ -9,8 +9,8 @@ import { ClientForm } from "@/components/ClientForm";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { useClients, useCreateClient, useDeleteClient } from "@/hooks/use-clients";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Plus, 
+import {
+  Plus,
   Search,
   Edit,
   Trash2,
@@ -26,7 +26,7 @@ export default function Clients() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   const { data: clients = [], isLoading } = useClients();
   const createClientMutation = useCreateClient();
   const deleteClientMutation = useDeleteClient();
@@ -43,7 +43,7 @@ export default function Clients() {
   const getAvatarColor = (name: string) => {
     const colors = [
       "from-emerald-500 to-emerald-600",
-      "from-blue-500 to-blue-600", 
+      "from-blue-500 to-blue-600",
       "from-purple-500 to-purple-600",
       "from-orange-500 to-orange-600",
       "from-pink-500 to-pink-600",
@@ -66,8 +66,8 @@ export default function Clients() {
 
   const filteredClients = clients.filter((client) => {
     return client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           client.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+      client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.phone?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const handleCreateClient = async (data: InsertClient) => {
@@ -117,12 +117,12 @@ export default function Clients() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Clients</h1>
-          <p className="text-slate-400 mt-1">Manage your client relationships and information</p>
+          <h1 className="text-3xl font-bold text-foreground">Clients</h1>
+          <p className="text-muted-foreground mt-1">Manage your client relationships and information</p>
         </div>
-        <Button 
+        <Button
           onClick={() => setIsFormOpen(true)}
-          className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Client
@@ -131,20 +131,20 @@ export default function Clients() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
         <Input
           placeholder="Search clients..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-slate-400"
+          className="pl-10 bg-card border-border text-foreground placeholder-muted-foreground"
         />
       </div>
 
       {/* Clients Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
         {isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="bg-slate-800 border-slate-700">
+          Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="bg-card border-border">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center">
@@ -154,71 +154,61 @@ export default function Clients() {
                       <Skeleton className="h-3 w-24" />
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Skeleton className="w-8 h-8 rounded" />
-                    <Skeleton className="w-8 h-8 rounded" />
-                  </div>
                 </div>
                 <div className="space-y-3">
                   <Skeleton className="h-3 w-full" />
                   <Skeleton className="h-3 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                </div>
-                <div className="mt-4 pt-4 border-t border-slate-700 flex space-x-2">
-                  <Skeleton className="h-10 flex-1" />
-                  <Skeleton className="h-10 w-10" />
-                  <Skeleton className="h-10 w-10" />
                 </div>
               </CardContent>
             </Card>
           ))
         ) : filteredClients.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 bg-slate-700 rounded-full flex items-center justify-center">
-              <Users className="w-8 h-8 text-slate-400" />
+            <div className="w-20 h-20 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+              <Users className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium text-white mb-2">No clients found</h3>
-            <p className="text-slate-400 mb-6">
-              {searchTerm 
-                ? "Try adjusting your search terms" 
+            <h3 className="text-xl font-medium text-foreground mb-2">No clients found</h3>
+            <p className="text-muted-foreground mb-6">
+              {searchTerm
+                ? "Try adjusting your search terms"
                 : "Get started by adding your first client"}
             </p>
-            <Button 
+            <Button
               onClick={() => setIsFormOpen(true)}
-              className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Client
+              Add Your First Client
             </Button>
           </div>
         ) : (
           filteredClients.map((client) => (
-            <Card key={client.id} className="bg-slate-800 border-slate-700 hover:border-indigo-500 transition-all hover:shadow-lg">
+            <Card key={client.id} className="bg-card border-border hover:border-indigo-500/50 transition-all hover:shadow-md group">
               <CardContent className="p-4 lg:p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center min-w-0 flex-1">
-                    <Avatar className={`w-10 h-10 lg:w-12 lg:h-12 mr-3 bg-gradient-to-br ${getAvatarColor(client.name)} flex-shrink-0`}>
+                    <Avatar className={`w-10 h-10 lg:w-12 lg:h-12 mr-3 bg-gradient-to-br ${getAvatarColor(client.name)} flex-shrink-0 shadow-sm shadow-indigo-500/10`}>
                       <AvatarFallback className="text-white font-semibold bg-transparent text-sm lg:text-base">
                         {getInitials(client.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-white text-sm lg:text-base truncate">{client.name}</h3>
-                      <p className="text-xs lg:text-sm text-slate-400 truncate">{client.email || "No email"}</p>
+                      <h3 className="font-semibold text-foreground text-sm lg:text-base truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{client.name}</h3>
+                      <p className="text-xs lg:text-sm text-muted-foreground truncate">{client.email || "No email address"}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-1 lg:space-x-2 ml-2">
+                  <div className="flex items-center space-x-1 lg:space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="p-1 lg:p-2 text-slate-400 hover:text-white h-8 w-8"
+                      className="p-1 lg:p-2 text-muted-foreground hover:text-foreground h-8 w-8"
                     >
                       <Edit className="w-3 h-3 lg:w-4 lg:h-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="p-1 lg:p-2 text-slate-400 hover:text-red-400 h-8 w-8"
+                      className="p-1 lg:p-2 text-muted-foreground hover:text-red-500 h-8 w-8"
                       onClick={() => handleDeleteClient(client)}
                     >
                       <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
@@ -227,48 +217,49 @@ export default function Clients() {
                 </div>
 
                 <div className="space-y-2 lg:space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs lg:text-sm text-slate-400">Phone:</span>
-                    <span className="text-xs lg:text-sm text-white truncate ml-2">{client.phone || "Not provided"}</span>
+                  <div className="flex items-center justify-between text-xs lg:text-sm">
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span className="text-foreground font-medium truncate ml-2">{client.phone || "Not provided"}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs lg:text-sm text-slate-400">Address:</span>
-                    <span className="text-xs lg:text-sm text-white truncate ml-2">{client.address || "Not provided"}</span>
+                  <div className="flex items-center justify-between text-xs lg:text-sm">
+                    <span className="text-muted-foreground">Address:</span>
+                    <span className="text-foreground font-medium truncate ml-2">{client.address || "Not provided"}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs lg:text-sm text-slate-400">Status:</span>
-                    <Badge className={`text-xs ${getStatusColor(client.status)}`}>
+                  <div className="flex items-center justify-between text-xs lg:text-sm">
+                    <span className="text-muted-foreground">Status:</span>
+                    <Badge variant="outline" className={`${getStatusColor(client.status)} border-none py-0 px-2`}>
                       {client.status}
                     </Badge>
                   </div>
                 </div>
 
-                <div className="mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-slate-700 flex flex-col sm:flex-row gap-2">
-                  <Button 
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs lg:text-sm h-8 lg:h-9"
-                    onClick={() => {/* Navigate to client cases */}}
+                <div className="mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-border/50 flex flex-col sm:flex-row gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border-none text-xs lg:text-sm h-8 lg:h-9 font-medium"
+                    onClick={() => {/* Navigate to client cases */ }}
                   >
                     View Cases
                   </Button>
                   <div className="flex gap-2">
                     {client.phone && (
-                      <Button 
-                        variant="outline"
+                      <Button
+                        variant="ghost"
                         size="sm"
-                        className="px-2 lg:px-3 py-1 lg:py-2 bg-slate-700 hover:bg-slate-600 text-white border-slate-600 h-8 lg:h-9"
+                        className="p-0 w-8 lg:w-9 h-8 lg:h-9 bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50"
                         onClick={() => window.open(`tel:${client.phone}`)}
                       >
-                        <Phone className="w-3 h-3 lg:w-4 lg:h-4" />
+                        <Phone className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                       </Button>
                     )}
                     {client.email && (
-                      <Button 
-                        variant="outline"
+                      <Button
+                        variant="ghost"
                         size="sm"
-                        className="px-2 lg:px-3 py-1 lg:py-2 bg-slate-700 hover:bg-slate-600 text-white border-slate-600 h-8 lg:h-9"
+                        className="p-0 w-8 lg:w-9 h-8 lg:h-9 bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50"
                         onClick={() => window.open(`mailto:${client.email}`)}
                       >
-                        <Mail className="w-3 h-3 lg:w-4 lg:h-4" />
+                        <Mail className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                       </Button>
                     )}
                   </div>
