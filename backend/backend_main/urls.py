@@ -6,7 +6,7 @@ from cases.views import CaseViewSet
 from reminders.views import ReminderViewSet
 from core.views import UserViewSet, DashboardStatsView, LoginView, UpdateProfileView, LogoutView, MeView
 
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'users', UserViewSet)
 router.register(r'clients', ClientViewSet)
 router.register(r'cases', CaseViewSet)
