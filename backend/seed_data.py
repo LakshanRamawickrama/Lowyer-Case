@@ -15,123 +15,130 @@ from django.utils import timezone
 from datetime import timedelta
 
 def seed():
-    # Create demo user
-    if not User.objects.filter(username="demo_lawyer").exists():
-        demo_user = User.objects.create_user(
-            username="demo_lawyer",
-            password="demo123",
-            fullName="Demo Lawyer",
-            email="demo@legalflow.com",
-            phone="+1 (555) 123-4567",
-            barNumber="BAR123456789",
-            practiceAreas="Personal Injury, Corporate Law, Estate Planning"
-        )
-        print("✅ Demo user created")
-
-    # Create sample clients
-    clients_data = [
-        {
-            "name": "Sarah Johnson",
-            "email": "sarah.johnson@email.com",
-            "phone": "+1 (555) 123-4567",
-            "address": "123 Main St, City, State 12345",
-            "status": "active"
-        },
-        {
-            "name": "Robert Miller",
-            "email": "robert.miller@email.com",
-            "phone": "+1 (555) 987-6543",
-            "address": "456 Oak Ave, City, State 12345",
-            "status": "active"
-        },
-        {
-            "name": "TechCorp Ltd.",
-            "email": "contact@techcorp.com",
-            "phone": "+1 (555) 456-7890",
-            "address": "789 Business Blvd, City, State 12345",
-            "status": "active"
+    print("🧹 Clearing existing data...")
+    Reminder.objects.all().delete()
+    Case.objects.all().delete()
+    Client.objects.all().delete()
+    
+    # Create or update professional demo user
+    demo_user, created = User.objects.get_or_create(
+        username="demo_lawyer",
+        defaults={
+            "fullName": "Alexander Vance, Esq.",
+            "email": "a.vance@vancelaw.com",
+            "phone": "+1 (212) 555-0198",
+            "barNumber": "NY-772841",
+            "practiceAreas": "Corporate Litigation, Intellectual Property, White Collar Defense"
         }
+    )
+    if not created:
+        demo_user.fullName = "Alexander Vance, Esq."
+        demo_user.email = "a.vance@vancelaw.com"
+        demo_user.barNumber = "NY-772841"
+        demo_user.save()
+    demo_user.set_password("demo123")
+    demo_user.save()
+    print("✅ Professional lawyer profile established")
+
+    # Real-feeling Clients
+    clients_data = [
+        {"name": "Global Logistics Systems Inc.", "email": "legal@globallogistics.com", "phone": "+1 (800) 555-9000", "address": "1200 Commerce Dr, Suite 500, Chicago, IL", "status": "active"},
+        {"name": "Dr. Elizabeth Thorne", "email": "ethorne.md@healthmail.org", "phone": "+1 (312) 555-4421", "address": "88 Medical Plaza, Lakeview, IL", "status": "active"},
+        {"name": "NexaStream Media Group", "email": "ops@nexastream.net", "phone": "+1 (212) 555-6677", "address": "42 Times Square Tower, New York, NY", "status": "active"},
+        {"name": "Marcus & Elena Santoro", "email": "the.santoros@familymail.com", "phone": "+1 (708) 555-2231", "address": "452 Winnetka Ave, Winnetka, IL", "status": "active"},
+        {"name": "Beacon Hill Estates Development", "email": "compliance@beaconhill.com", "phone": "+1 (617) 555-8812", "address": "15 State St, Boston, MA", "status": "active"},
+        {"name": "Jonathan Sterling", "email": "j.sterling@sterlingfunds.com", "phone": "+1 (203) 555-9988", "address": "9 Greenwich Way, Greenwich, CT", "status": "active"},
+        {"name": "Riverside Community Hospital", "email": "legal-office@riversidemed.org", "phone": "+1 (312) 555-0010", "address": "500 Wellness Parkway, Chicago, IL", "status": "active"},
+        {"name": "Horizon Venture Partners", "email": "deals@horizonvp.com", "phone": "+1 (650) 555-4400", "address": "300 Sand Hill Rd, Menlo Park, CA", "status": "active"},
     ]
 
     created_clients = []
     for data in clients_data:
-        client, created = Client.objects.get_or_create(name=data["name"], defaults=data)
+        client = Client.objects.create(**data)
         created_clients.append(client)
-        if created:
-            print(f"✅ Client {client.name} created")
+    print(f"✅ Created {len(created_clients)} strategic clients")
 
-    # Create sample cases
+    # Real-feeling Cases
     cases_data = [
         {
-            "title": "Personal Injury Claim",
-            "caseNumber": "PI-2024-001",
-            "type": "Personal Injury",
+            "title": "Cross-Border Acquisition Strategy",
+            "caseNumber": "M&A-2024-88A",
+            "type": "Corporate Law",
             "status": "active",
-            "priority": "high",
-            "description": "Slip and fall incident at local grocery store",
+            "priority": "urgent",
+            "description": "Acquisition of EuroRail Logistics by Global Logistics Systems Inc. Target valuation $150M. Currently in due diligence phase.",
             "clientId": created_clients[0]
         },
         {
-            "title": "Corporate Contract Review",
-            "caseNumber": "CR-2024-002",
-            "type": "Corporate Law",
+            "title": "Thorne v. Metropolitan Health",
+            "caseNumber": "CIV-2024-442",
+            "type": "Personal Injury",
+            "status": "active",
+            "priority": "high",
+            "description": "Professional negligence and breach of contract claim against Metropolitan Health System. Medical records discovery in progress.",
+            "clientId": created_clients[1]
+        },
+        {
+            "title": "IP Portfolio Defense - Q4",
+            "caseNumber": "IP-NY-2024-012",
+            "type": "Civil Law",
             "status": "active",
             "priority": "medium",
-            "description": "Review and negotiation of service agreement",
+            "description": "Defense of streaming patents against unauthorized use by offshore entities. Multiple cease and desist orders pending.",
             "clientId": created_clients[2]
         },
         {
-            "title": "Estate Planning",
-            "caseNumber": "EP-2024-003",
-            "type": "Estate Planning",
+            "title": "Santoro Family Trust Restructuring",
+            "caseNumber": "PR-IL-2024-991",
+            "type": "Family Law",
             "status": "pending",
             "priority": "low",
-            "description": "Will and trust preparation",
-            "clientId": created_clients[1]
-        }
+            "description": "Comprehensive restructuring of the Santoro family multi-generational trust and estate plan for tax efficiency.",
+            "clientId": created_clients[3]
+        },
+        {
+            "title": "Zoning Appeal: Beacon North Project",
+            "caseNumber": "RE-BO-2024-55",
+            "type": "Real Estate Law",
+            "status": "active",
+            "priority": "high",
+            "description": "Appealing the municipal board decision regarding setbacks and environmental impact for the North Shore development.",
+            "clientId": created_clients[4]
+        },
+        {
+            "title": "Sterling SEC Compliance Audit",
+            "caseNumber": "SEC-2024-009",
+            "type": "Criminal Law",
+            "status": "review",
+            "priority": "urgent",
+            "description": "Internal audit and response preparation for the SEC inquiry regarding Sterling Funds Q3 trade reports.",
+            "clientId": created_clients[5]
+        },
     ]
 
     created_cases = []
     for data in cases_data:
-        case, created = Case.objects.get_or_create(caseNumber=data["caseNumber"], defaults=data)
+        case = Case.objects.create(**data)
         created_cases.append(case)
-        if created:
-            print(f"✅ Case {case.title} created")
+    print(f"✅ Established {len(created_cases)} high-stakes legal cases")
 
-    # Create sample reminders
+    # Real-feeling Reminders
+    now = timezone.now()
     reminders_data = [
-        {
-            "title": "Court Hearing",
-            "description": "Personal injury case hearing",
-            "dueDate": timezone.now() + timedelta(days=7),
-            "location": "Courthouse Room 101",
-            "type": "hearing",
-            "priority": "high",
-            "caseId": created_cases[0]
-        },
-        {
-            "title": "Client Meeting",
-            "description": "Contract review meeting with client",
-            "dueDate": timezone.now() + timedelta(days=3),
-            "type": "meeting",
-            "priority": "medium",
-            "caseId": created_cases[1]
-        },
-        {
-            "title": "Document Deadline",
-            "description": "Submit estate planning documents",
-            "dueDate": timezone.now() + timedelta(days=14),
-            "type": "deadline",
-            "priority": "medium",
-            "caseId": created_cases[2]
-        }
+        {"title": "M&A Closing - Final Sign-off", "description": "Execute final share purchase agreements for EuroRail acquisition.", "dueDate": now + timedelta(days=2, hours=4), "location": "v.Tower Chicago, Executive Floor", "type": "deadline", "priority": "urgent", "caseId": created_cases[0]},
+        {"title": "Deposition: Dr. Thorne", "description": "Preparation and actual deposition of Dr. Thorne via Zoom link.", "dueDate": now + timedelta(days=5, hours=1), "location": "Zoom / Conference Room B", "type": "hearing", "priority": "high", "caseId": created_cases[1]},
+        {"title": "IP Tribunal Initial Filing", "description": "Submit initial evidence package to the New York IP Protection Board.", "dueDate": now + timedelta(days=1, hours=8), "location": "NY District Office", "type": "filing", "priority": "urgent", "caseId": created_cases[2]},
+        {"title": "Mediation: Santoro Family", "description": "Structured mediation between family beneficiaries and trust administrators.", "dueDate": now + timedelta(days=10), "location": "Santoro Residence", "type": "meeting", "priority": "medium", "caseId": created_cases[3]},
+        {"title": "Beacon Hill Board of Appeals", "description": "Present site plan modifications to the Boston Zoning Board.", "dueDate": now + timedelta(days=12, hours=5), "location": "Boston City Hall", "type": "hearing", "priority": "high", "caseId": created_cases[4]},
+        {"title": "SEC Response Draft Review", "description": "Review final draft of the response letter before sending to federal investigators.", "dueDate": now + timedelta(days=3), "location": "Partner Office", "type": "deadline", "priority": "urgent", "caseId": created_cases[5]},
+        {"title": "Riverside Med Compliance Review", "description": "Bi-annual review of hospital risk management protocols.", "dueDate": now + timedelta(days=20), "location": "Riverside Admin Office", "type": "meeting", "priority": "low", "caseId": None},
+        {"title": "Horizon VP Strategy Dinner", "description": "Discuss future deal pipeline and regulatory changes in Silicon Valley.", "dueDate": now + timedelta(days=7, hours=3), "location": "The Ritz-Carlton SF", "type": "meeting", "priority": "medium", "caseId": None},
     ]
 
     for data in reminders_data:
-        reminder, created = Reminder.objects.get_or_create(title=data["title"], defaults=data)
-        if created:
-            print(f"✅ Reminder {reminder.title} created")
+        Reminder.objects.create(**data)
+    print(f"✅ Scheduled {len(reminders_data)} critical legal actions")
 
 if __name__ == "__main__":
     seed()
-    print("🚀 Database seeding complete!")
+    print("\n🚀 Database refined with professional legal data successfully!")

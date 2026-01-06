@@ -177,10 +177,7 @@ export default function Dashboard() {
                 <Folder className="w-6 h-6 text-blue-500" />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
-              <span className="text-green-600 dark:text-green-400 text-sm font-medium">+12%</span>
-              <span className="text-muted-foreground text-sm ml-2">from last month</span>
-            </div>
+
           </CardContent>
         </Card>
 
@@ -199,10 +196,7 @@ export default function Dashboard() {
                 <TrendingUp className="w-6 h-6 text-indigo-500" />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
-              <span className="text-green-600 dark:text-green-400 text-sm font-medium">+8%</span>
-              <span className="text-muted-foreground text-sm ml-2">from last month</span>
-            </div>
+
           </CardContent>
         </Card>
 
@@ -221,10 +215,7 @@ export default function Dashboard() {
                 <Users className="w-6 h-6 text-purple-500" />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
-              <span className="text-green-600 dark:text-green-400 text-sm font-medium">+24%</span>
-              <span className="text-muted-foreground text-sm ml-2">from last month</span>
-            </div>
+
           </CardContent>
         </Card>
 
@@ -243,10 +234,7 @@ export default function Dashboard() {
                 <Bell className="w-6 h-6 text-yellow-500" />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
-              <span className="text-red-600 dark:text-red-400 text-sm font-medium">+2</span>
-              <span className="text-muted-foreground text-sm ml-2">urgent today</span>
-            </div>
+
           </CardContent>
         </Card>
       </div>

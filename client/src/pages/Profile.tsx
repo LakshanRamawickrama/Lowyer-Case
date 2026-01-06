@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,10 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
+
+  const { data: stats } = useQuery<any>({
+    queryKey: ["/api/dashboard/stats"],
+  });
 
   const getInitials = (name: string) => {
     return name
@@ -471,15 +475,15 @@ export default function Profile() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Total Cases</span>
-                <span className="text-foreground font-semibold">3</span>
+                <span className="text-foreground font-semibold">{stats?.totalCases || 0}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Active Cases</span>
-                <span className="text-foreground font-semibold">1</span>
+                <span className="text-foreground font-semibold">{stats?.activeCases || 0}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Completed Cases</span>
-                <span className="text-foreground font-semibold">2</span>
+                <span className="text-muted-foreground">Pending Reminders</span>
+                <span className="text-foreground font-semibold">{stats?.pendingReminders || 0}</span>
               </div>
             </CardContent>
           </Card>
