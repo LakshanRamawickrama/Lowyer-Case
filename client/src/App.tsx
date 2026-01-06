@@ -17,6 +17,7 @@ import NotFound from "@/pages/not-found";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
+  console.log("DEBUG: ProtectedRoute", { user: !!user, isLoading });
 
   if (isLoading) {
     return (
@@ -27,6 +28,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
 
   if (!user) {
+    console.log("DEBUG: No user found, redirecting to login");
     return <Redirect to="/login" />;
   }
 

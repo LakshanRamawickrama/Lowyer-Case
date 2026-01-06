@@ -29,10 +29,14 @@ const profileUpdateSchema = insertUserSchema.pick({
   fullName: true,
   email: true,
   phone: true,
+  barNumber: true,
+  practiceAreas: true,
 }).extend({
   fullName: z.string().optional(),
   email: z.string().optional(),
   phone: z.string().optional(),
+  barNumber: z.string().optional(),
+  practiceAreas: z.string().optional(),
 });
 
 const passwordChangeSchema = z.object({
@@ -48,7 +52,7 @@ type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 type PasswordChangeData = z.infer<typeof passwordChangeSchema>;
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -70,6 +74,8 @@ export default function Profile() {
       fullName: user?.fullName || "",
       email: user?.email || "",
       phone: user?.phone || "",
+      barNumber: user?.barNumber || "",
+      practiceAreas: user?.practiceAreas || "",
     },
   });
 
@@ -88,7 +94,8 @@ export default function Profile() {
       const response = await apiRequest("PUT", `/api/user/${user.id}`, data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await refreshUser();
       toast({
         title: "Success",
         description: "Profile updated successfully.",
@@ -112,7 +119,8 @@ export default function Profile() {
       });
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await refreshUser();
       toast({
         title: "Success",
         description: "Password changed successfully.",
@@ -166,8 +174,8 @@ export default function Profile() {
                     {user.fullName || user.username}
                   </h4>
                   <p className="text-slate-400">Legal Professional</p>
-                  <Button 
-                    variant="link" 
+                  <Button
+                    variant="link"
                     className="text-indigo-400 hover:text-indigo-300 p-0 h-auto text-sm mt-1"
                     onClick={() => {
                       // Generate new avatar colors based on name
@@ -196,7 +204,7 @@ export default function Profile() {
                       />
                       <p className="text-xs text-slate-500 mt-1">Username cannot be changed</p>
                     </div>
-                    
+
                     <FormField
                       control={profileForm.control}
                       name="fullName"
@@ -204,7 +212,7 @@ export default function Profile() {
                         <FormItem>
                           <FormLabel className="text-slate-300">Full Name</FormLabel>
                           <FormControl>
-                            <Input 
+                            <Input
                               className="bg-slate-700 border-slate-600 text-white"
                               {...field}
                               value={field.value || ""}
@@ -224,7 +232,7 @@ export default function Profile() {
                         <FormItem>
                           <FormLabel className="text-slate-300">Email</FormLabel>
                           <FormControl>
-                            <Input 
+                            <Input
                               type="email"
                               className="bg-slate-700 border-slate-600 text-white"
                               {...field}
@@ -235,7 +243,7 @@ export default function Profile() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={profileForm.control}
                       name="phone"
@@ -243,8 +251,26 @@ export default function Profile() {
                         <FormItem>
                           <FormLabel className="text-slate-300">Phone</FormLabel>
                           <FormControl>
-                            <Input 
+                            <Input
                               type="tel"
+                              className="bg-slate-700 border-slate-600 text-white"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={profileForm.control}
+                      name="barNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-300">Bar Number</FormLabel>
+                          <FormControl>
+                            <Input
                               className="bg-slate-700 border-slate-600 text-white"
                               {...field}
                               value={field.value || ""}
@@ -256,18 +282,37 @@ export default function Profile() {
                     />
                   </div>
 
+                  <div>
+                    <FormField
+                      control={profileForm.control}
+                      name="practiceAreas"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-300">Practice Areas</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              className="bg-slate-700 border-slate-600 text-white min-h-[100px]"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
 
                   <div className="flex justify-end space-x-4">
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       variant="outline"
                       className="bg-slate-600 hover:bg-slate-500 text-white border-slate-500"
                     >
                       Cancel
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={updateProfileMutation.isPending}
                       className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
                     >
@@ -297,17 +342,17 @@ export default function Profile() {
                       <FormItem>
                         <FormLabel className="text-slate-300">Current Password</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             type="password"
                             className="bg-slate-700 border-slate-600 text-white"
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={passwordForm.control}
                     name="newPassword"
@@ -315,17 +360,17 @@ export default function Profile() {
                       <FormItem>
                         <FormLabel className="text-slate-300">New Password</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             type="password"
                             className="bg-slate-700 border-slate-600 text-white"
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={passwordForm.control}
                     name="confirmPassword"
@@ -333,19 +378,19 @@ export default function Profile() {
                       <FormItem>
                         <FormLabel className="text-slate-300">Confirm Password</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             type="password"
                             className="bg-slate-700 border-slate-600 text-white"
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
-                  <Button 
-                    type="submit" 
+
+                  <Button
+                    type="submit"
                     disabled={changePasswordMutation.isPending}
                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                   >

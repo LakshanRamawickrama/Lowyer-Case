@@ -5,6 +5,7 @@ interface AuthContextType {
   user: User | null;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -15,16 +16,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem("legal-flow-user");
-    if (storedUser) {
+    const checkAuth = async () => {
       try {
-        setUser(JSON.parse(storedUser));
+        const response = await fetch("/api/auth/me", {
+          credentials: "include"
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+          if (data.user) {
+            localStorage.setItem("legal-flow-user", JSON.stringify(data.user));
+          }
+        } else {
+          localStorage.removeItem("legal-flow-user");
+          setUser(null);
+        }
       } catch (error) {
-        localStorage.removeItem("legal-flow-user");
+        // Fallback to localStorage if server is down or request fails
+        const storedUser = localStorage.getItem("legal-flow-user");
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser));
+          } catch (e) {
+            localStorage.removeItem("legal-flow-user");
+          }
+        }
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
@@ -35,15 +57,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
+        credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log("DEBUG: Login response data", data);
         setUser(data.user);
         localStorage.setItem("legal-flow-user", JSON.stringify(data.user));
         return true;
       }
-      
+
+      const errorData = await response.json();
+      console.error("Login failed:", errorData.message);
       return false;
     } catch (error) {
       console.error("Login error:", error);
@@ -51,13 +77,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout error", e);
+    }
     setUser(null);
     localStorage.removeItem("legal-flow-user");
   };
 
+  const refreshUser = async () => {
+    try {
+      const response = await fetch("/api/auth/me", { credentials: "include" });
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        if (data.user) {
+          localStorage.setItem("legal-flow-user", JSON.stringify(data.user));
+        }
+      }
+    } catch (e) {
+      console.error("Refresh user error", e);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, refreshUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,14 +1,15 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
-import { 
-  Folder, 
-  TrendingUp, 
-  Users, 
-  Bell, 
+import {
+  Folder,
+  TrendingUp,
+  Users,
+  Bell,
   Plus,
   Gavel,
   Handshake,
@@ -16,12 +17,24 @@ import {
   Clock,
   MapPin
 } from "lucide-react";
-import type { DashboardStats, CaseWithClient, ReminderWithCase } from "@shared/schema";
+import type { DashboardStats, CaseWithClient, ReminderWithCase, InsertCase } from "@shared/schema";
 import { format, isToday, isTomorrow, isThisWeek } from "date-fns";
+import { CaseForm } from "@/components/CaseForm";
+import { ReminderForm } from "@/components/ReminderForm";
+import { useCreateCase } from "@/hooks/use-cases";
+import { useCreateReminder } from "@/hooks/use-reminders";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isReminderFormOpen, setIsReminderFormOpen] = useState(false);
+  const createCaseMutation = useCreateCase();
+  const createReminderMutation = useCreateReminder();
+
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard/stats"],
   });
@@ -82,9 +95,9 @@ export default function Dashboard() {
     }
   };
 
-  const formatReminderDate = (date: Date) => {
+  const formatReminderDate = (date: Date | string) => {
     const reminderDate = new Date(date);
-    
+
     if (isToday(reminderDate)) {
       return `Today, ${format(reminderDate, "h:mm a")}`;
     } else if (isTomorrow(reminderDate)) {
@@ -93,6 +106,40 @@ export default function Dashboard() {
       return format(reminderDate, "EEEE, h:mm a");
     } else {
       return format(reminderDate, "MMM d, h:mm a");
+    }
+  };
+
+  const handleCreateCase = async (data: InsertCase) => {
+    try {
+      await createCaseMutation.mutateAsync(data);
+      setIsFormOpen(false);
+      toast({
+        title: "Success",
+        description: "Case created successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create case. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreateReminder = async (data: any) => {
+    try {
+      await createReminderMutation.mutateAsync(data);
+      setIsReminderFormOpen(false);
+      toast({
+        title: "Success",
+        description: "Reminder created successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create reminder. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -107,7 +154,10 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="hidden md:block">
-          <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white">
+          <Button
+            onClick={() => setIsFormOpen(true)}
+            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
+          >
             <Plus className="w-4 h-4 mr-2" />
             New Case
           </Button>
@@ -212,7 +262,12 @@ export default function Dashboard() {
           <Card className="bg-slate-800 border-slate-700">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-xl font-semibold text-white">Recent Cases</CardTitle>
-              <Button variant="ghost" size="sm" className="text-indigo-400 hover:text-indigo-300">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLocation("/cases")}
+                className="text-indigo-400 hover:text-indigo-300"
+              >
                 View All
               </Button>
             </CardHeader>
@@ -259,7 +314,12 @@ export default function Dashboard() {
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-xl font-semibold text-white">Upcoming</CardTitle>
-            <Button variant="ghost" size="sm" className="text-indigo-400 hover:text-indigo-300">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsReminderFormOpen(true)}
+              className="text-indigo-400 hover:text-indigo-300"
+            >
               <Plus className="w-4 h-4" />
             </Button>
           </CardHeader>
@@ -305,11 +365,28 @@ export default function Dashboard() {
       <div className="md:hidden fixed bottom-20 right-4 z-40">
         <Button
           size="lg"
+          onClick={() => setIsFormOpen(true)}
           className="w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 rounded-full shadow-lg hover:shadow-xl transition-all"
         >
           <Plus className="w-6 h-6 text-white" />
         </Button>
       </div>
+
+      {/* Case Form Modal */}
+      <CaseForm
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        onSubmit={handleCreateCase}
+        isLoading={createCaseMutation.isPending}
+      />
+
+      {/* Reminder Form Modal */}
+      <ReminderForm
+        open={isReminderFormOpen}
+        onOpenChange={setIsReminderFormOpen}
+        onSubmit={handleCreateReminder}
+        isLoading={createReminderMutation.isPending}
+      />
     </div>
   );
 }

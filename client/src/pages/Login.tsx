@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useLocation } from "wouter";
+import { Redirect, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +10,13 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const [, setLocation] = useLocation();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const { toast } = useToast();
+
+  // If already logged in, go to dashboard
+  if (user) {
+    return <Redirect to="/" />;
+  }
   const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({
     username: "",
@@ -24,13 +29,13 @@ export default function Login() {
 
     try {
       const success = await login(credentials.username, credentials.password);
-      
+
       if (success) {
         toast({
           title: "Welcome back!",
           description: "Successfully logged in to LegalFlow.",
         });
-        setLocation("/dashboard");
+        window.location.href = "/";
       } else {
         toast({
           title: "Login failed",
@@ -87,7 +92,7 @@ export default function Login() {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-slate-300">
                   Password
@@ -102,9 +107,9 @@ export default function Login() {
                   required
                 />
               </div>
-              
-              <Button 
-                type="submit" 
+
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-3 transition-all duration-200 transform hover:scale-105"
                 disabled={isLoading}
               >
