@@ -17,10 +17,18 @@ import {
     AlertCircle,
     Hash,
     Handshake,
-    Building
+    Building,
+    Upload,
+    Trash2,
+    Download,
+    File,
+    Loader2
 } from "lucide-react";
 import type { CaseWithClient } from "@shared/schema";
 import { format } from "date-fns";
+import { useUploadDocument, useDeleteDocument } from "@/hooks/use-cases";
+import { useState, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CaseDetailsProps {
     caseData: CaseWithClient | null;
@@ -30,7 +38,56 @@ interface CaseDetailsProps {
 }
 
 export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetailsProps) {
+    const { toast } = useToast();
+    const uploadMutation = useUploadDocument();
+    const deleteMutation = useDeleteDocument();
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     if (!caseData) return null;
+
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            await uploadMutation.mutateAsync({
+                caseId: caseData.id,
+                title: file.name,
+                file: file
+            });
+            toast({
+                title: "Success",
+                description: "Document uploaded successfully",
+            });
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to upload document",
+                variant: "destructive",
+            });
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
+    const handleDeleteDocument = async (docId: number) => {
+        try {
+            await deleteMutation.mutateAsync({ id: docId, caseId: caseData.id });
+            toast({
+                title: "Success",
+                description: "Document deleted successfully",
+            });
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to delete document",
+                variant: "destructive",
+            });
+        }
+    };
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
@@ -71,8 +128,8 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] bg-card border-border p-0 overflow-hidden">
-                <div className="h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+            <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto bg-card border-border p-0">
+                <div className="h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 sticky top-0 z-10" />
 
                 <div className="p-6">
                     <DialogHeader className="mb-6">
@@ -162,10 +219,87 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                             <FileText className="w-3 h-3" /> Description
                         </p>
-                        <div className="bg-muted/30 p-4 rounded-lg border border-border/50 min-h-[100px]">
-                            <p className="text-sm text-foreground leading-relaxed">
+                        <div className="bg-muted/30 p-4 rounded-lg border border-border/50 min-h-[80px]">
+                            <p className="text-sm text-foreground leading-relaxed italic">
                                 {caseData.description || "No description provided for this case."}
                             </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                                <File className="w-5 h-5 text-indigo-500" /> Documents
+                                <span className="text-xs font-normal text-muted-foreground ml-2">
+                                    ({caseData.documents?.length || 0})
+                                </span>
+                            </h3>
+                            <div className="flex gap-2">
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileUpload}
+                                    className="hidden"
+                                />
+                                <Button
+                                    size="sm"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isUploading}
+                                    className="bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 border-indigo-500/30 gap-2"
+                                >
+                                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                    Upload
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div className="bg-muted/30 rounded-xl border border-border/50 divide-y divide-border/50">
+                            {caseData.documents && caseData.documents.length > 0 ? (
+                                caseData.documents.map((doc) => (
+                                    <div key={doc.id} className="p-3 flex items-center justify-between group hover:bg-muted/50 transition-colors">
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0">
+                                                <FileText className="w-4 h-4" />
+                                            </div>
+                                            <div className="overflow-hidden">
+                                                <p className="text-sm font-medium text-foreground truncate">
+                                                    {doc.title}
+                                                </p>
+                                                <p className="text-[10px] text-muted-foreground">
+                                                    Uploaded {format(new Date(doc.uploadedAt), "MMM d, yyyy")}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8 text-muted-foreground hover:text-indigo-500"
+                                                asChild
+                                            >
+                                                <a href={doc.file} target="_blank" rel="noopener noreferrer">
+                                                    <Download className="w-4 h-4" />
+                                                </a>
+                                            </Button>
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8 text-muted-foreground hover:text-red-500"
+                                                onClick={() => handleDeleteDocument(doc.id)}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-8 text-center">
+                                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <Upload className="w-6 h-6 text-muted-foreground" />
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">No documents uploaded yet.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -181,7 +315,7 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                             className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0"
                             onClick={() => onEdit?.(caseData)}
                         >
-                            Edit Case Information
+                            Edit Case
                         </Button>
                     </div>
                 </div>

@@ -14,3 +14,12 @@ class Case(models.Model):
 
     def __str__(self):
         return f"{self.caseNumber} - {self.title}" if self.caseNumber else self.title
+
+class CaseDocument(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name="documents")
+    file = models.FileField(upload_to="case_documents/")
+    title = models.CharField(max_length=255)
+    uploadedAt = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.case.caseNumber})"

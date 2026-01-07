@@ -39,6 +39,14 @@ export const insertClientSchema = z.object({
     status: z.string().default("active"),
 });
 
+export interface CaseDocument {
+    id: number;
+    case: number;
+    file: string;
+    title: string;
+    uploadedAt: string;
+}
+
 export interface Case {
     id: number;
     title: string;
@@ -50,6 +58,7 @@ export interface Case {
     clientId: number | null;
     createdAt: string;
     updatedAt: string;
+    documents?: CaseDocument[];
 }
 
 export const insertCaseSchema = z.object({

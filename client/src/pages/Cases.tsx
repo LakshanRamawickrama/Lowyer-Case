@@ -14,7 +14,7 @@ import {
 import { CaseForm } from "@/components/CaseForm";
 import { CaseDetails } from "@/components/CaseDetails";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
-import { useCases, useCreateCase, useUpdateCase, useDeleteCase } from "@/hooks/use-cases";
+import { useCases, useCreateCase, useUpdateCase, useDeleteCase, useUploadDocument } from "@/hooks/use-cases";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus,
@@ -52,6 +52,7 @@ export default function Cases() {
   const createCaseMutation = useCreateCase();
   const updateCaseMutation = useUpdateCase();
   const deleteCaseMutation = useDeleteCase();
+  const uploadDocumentMutation = useUploadDocument();
 
   const getCaseIcon = (type: string) => {
     switch (type) {
@@ -88,7 +89,7 @@ export default function Cases() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  const handleSubmitCase = async (data: InsertCase) => {
+  const handleSubmitCase = async (data: InsertCase, files?: File[]) => {
     try {
       if (selectedCase) {
         await updateCaseMutation.mutateAsync({ id: selectedCase.id, data });
@@ -97,10 +98,24 @@ export default function Cases() {
           description: "Case updated successfully.",
         });
       } else {
-        await createCaseMutation.mutateAsync(data);
+        const newCase = await createCaseMutation.mutateAsync(data);
+
+        // Upload any documents attached during creation
+        if (files && files.length > 0) {
+          await Promise.all(
+            files.map(file =>
+              uploadDocumentMutation.mutateAsync({
+                caseId: newCase.id,
+                title: file.name,
+                file: file
+              })
+            )
+          );
+        }
+
         toast({
           title: "Success",
-          description: "Case created successfully.",
+          description: "Case created successfully with documents.",
         });
       }
       setIsFormOpen(false);
