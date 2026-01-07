@@ -73,6 +73,7 @@ export function useUploadDocument() {
       const response = await fetch("/api/case-documents", {
         method: "POST",
         body: formData,
+        credentials: "include",
         // Don't set Content-Type header, fetch will do it with boundary
       });
 
