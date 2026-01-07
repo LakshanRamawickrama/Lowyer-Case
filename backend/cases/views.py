@@ -1,12 +1,18 @@
 from rest_framework import viewsets, permissions
-from .models import Case, CaseDocument
-from .serializers import CaseSerializer, CaseDocumentSerializer
+from .models import Case, CaseDocument, CaseType
+from .serializers import CaseSerializer, CaseDocumentSerializer, CaseTypeSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.authentication import SessionAuthentication
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return  # Skip CSRF check for development
+
+class CaseTypeViewSet(viewsets.ModelViewSet):
+    queryset = CaseType.objects.all().order_by('name')
+    serializer_class = CaseTypeSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.AllowAny]
 
 class CaseViewSet(viewsets.ModelViewSet):
     queryset = Case.objects.all().order_by('-createdAt')

@@ -9,7 +9,7 @@ django.setup()
 
 from core.models import User
 from clients.models import Client
-from cases.models import Case
+from cases.models import Case, CaseType
 from reminders.models import Reminder
 from django.utils import timezone
 from datetime import timedelta
@@ -18,9 +18,11 @@ def seed():
     print("🧹 Clearing existing data...")
     Reminder.objects.all().delete()
     Case.objects.all().delete()
+    CaseType.objects.all().delete()
     Client.objects.all().delete()
     
     # Create or update professional Sri Lankan lawyer profile
+    # ... (skipping some lines for brevity in replacement)
     demo_user, created = User.objects.get_or_create(
         username="demo_lawyer",
         defaults={
@@ -40,7 +42,26 @@ def seed():
     demo_user.save()
     print("✅ Sri Lankan Senior Counsel profile established")
 
+    # Create Case Types
+    case_types_data = [
+        {"name": "Civil Law", "code": "CIV"},
+        {"name": "Criminal Law", "code": "CRM"},
+        {"name": "Commercial Law", "code": "COM"},
+        {"name": "Family Law", "code": "FAM"},
+        {"name": "Land Law", "code": "LND"},
+        {"name": "Fundamental Rights", "code": "FR"},
+        {"name": "Estate Planning", "code": "EST"},
+        {"name": "Real Estate", "code": "RE"},
+    ]
+    
+    case_types = {}
+    for data in case_types_data:
+        ct = CaseType.objects.create(**data)
+        case_types[ct.name] = ct
+    print(f"✅ Created {len(case_types)} standardized case types")
+
     # Real-feeling Sri Lankan Clients
+    # ... (clients_data)
     clients_data = [
         {"name": "Dialog Axiata PLC (Legal Div)", "email": "legal@dialog.lk", "phone": "+94 11 777 8888", "address": "475, Union Place, Colombo 02", "status": "active"},
         {"name": "Mr. Aruna Perera", "email": "aruna.p@gmail.com", "phone": "+94 77 123 4567", "address": "No. 45, Peradeniya Road, Kandy", "status": "active"},
@@ -60,7 +81,7 @@ def seed():
     cases_data = [
         {
             "title": "Land Partition Case - Nuwara Eliya",
-            "type": "Civil Law",
+            "caseType": case_types["Civil Law"],
             "nic": "198512345678",
             "status": "active",
             "priority": "high",
@@ -69,7 +90,7 @@ def seed():
         },
         {
             "title": "Fundamental Rights Petition (SC)",
-            "type": "Fundamental Rights",
+            "caseType": case_types["Fundamental Rights"],
             "nic": "197898765432",
             "status": "active",
             "priority": "urgent",
@@ -78,7 +99,7 @@ def seed():
         },
         {
             "title": "Spectrum Licensing Arbitration",
-            "type": "Commercial Law",
+            "caseType": case_types["Commercial Law"],
             "nic": "199055566677",
             "status": "active",
             "priority": "medium",
@@ -87,7 +108,7 @@ def seed():
         },
         {
             "title": "Hemas Trade Mark Infringement",
-            "type": "Civil Law",
+            "caseType": case_types["Civil Law"],
             "nic": "196544433322",
             "status": "pending",
             "priority": "high",
@@ -96,7 +117,7 @@ def seed():
         },
         {
             "title": "Galle Face Hotel Lease Renewal",
-            "type": "Land Law",
+            "caseType": case_types["Land Law"],
             "nic": "197211122233",
             "status": "review",
             "priority": "medium",

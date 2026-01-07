@@ -31,6 +31,7 @@ import { useClients } from "@/hooks/use-clients";
 import { useState, useRef, useEffect } from "react";
 import { FileText, Upload, Trash2, X, Plus, Loader2, File, Download } from "lucide-react";
 import { useUploadDocument, useDeleteDocument } from "@/hooks/use-cases";
+import { useCaseTypes } from "@/hooks/use-case-types";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -42,16 +43,6 @@ interface CaseFormProps {
   initialData?: CaseWithClient;
 }
 
-const caseTypes = [
-  "Civil Law",
-  "Criminal Law",
-  "Commercial Law",
-  "Family Law",
-  "Land Law",
-  "Fundamental Rights",
-  "Estate Planning",
-  "Real Estate",
-];
 
 const statusOptions = [
   { value: "active", label: "Active" },
@@ -75,6 +66,7 @@ export function CaseForm({
   initialData
 }: CaseFormProps) {
   const { data: clients = [] } = useClients();
+  const { data: caseTypes = [] } = useCaseTypes();
   const { toast } = useToast();
   const uploadDocument = useUploadDocument();
   const deleteDocument = useDeleteDocument();
@@ -88,7 +80,7 @@ export function CaseForm({
     defaultValues: {
       title: initialData?.title || "",
       caseNumber: initialData?.caseNumber || "",
-      type: initialData?.type || "",
+      caseType: initialData?.caseType || undefined,
       status: initialData?.status || "active",
       priority: initialData?.priority || "medium",
       description: initialData?.description || "",
@@ -104,7 +96,7 @@ export function CaseForm({
         form.reset({
           title: "",
           caseNumber: "",
-          type: "",
+          caseType: undefined as any,
           status: "active",
           priority: "medium",
           description: "",
@@ -116,7 +108,7 @@ export function CaseForm({
         form.reset({
           title: initialData.title,
           caseNumber: initialData.caseNumber || "",
-          type: initialData.type,
+          caseType: initialData.caseType as any,
           status: initialData.status,
           priority: initialData.priority,
           description: initialData.description || "",
@@ -304,11 +296,15 @@ export function CaseForm({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="type"
+                  name="caseType"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-foreground/80 font-medium">Case Type *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
+                      <Select
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        defaultValue={field.value?.toString()}
+                        key={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger className="bg-card border-border text-foreground focus:ring-indigo-500 h-10 text-left">
                             <SelectValue placeholder="Select case type" />
@@ -316,8 +312,8 @@ export function CaseForm({
                         </FormControl>
                         <SelectContent className="bg-card border-border">
                           {caseTypes.map((type) => (
-                            <SelectItem key={type} value={type} className="hover:bg-muted transition-colors">
-                              {type}
+                            <SelectItem key={type.id} value={type.id.toString()} className="hover:bg-muted transition-colors">
+                              {type.name}
                             </SelectItem>
                           ))}
                         </SelectContent>

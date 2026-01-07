@@ -105,7 +105,8 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
         }
     };
 
-    const getCaseIcon = (type: string) => {
+    const getCaseIcon = (type: string | undefined) => {
+        if (!type) return <Gavel className="w-6 h-6" />;
         switch (type) {
             case "Criminal Law": return <Gavel className="w-6 h-6" />;
             case "Family Law": return <Handshake className="w-6 h-6" />;
@@ -135,7 +136,7 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                         </div>
                         <DialogTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                             <div className="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center text-indigo-500">
-                                {getCaseIcon(caseData.type)}
+                                {getCaseIcon(caseData.type_details?.name)}
                             </div>
                             {caseData.title}
                         </DialogTitle>
@@ -148,7 +149,7 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                                     <Tag className="w-3 h-3" /> Case Type
                                 </p>
                                 <p className="text-sm text-foreground font-medium bg-muted/30 p-2 rounded-md border border-border/50">
-                                    {caseData.type}
+                                    {caseData.type_details?.name || "N/A"}
                                 </p>
                             </div>
 

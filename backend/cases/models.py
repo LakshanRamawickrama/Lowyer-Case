@@ -1,10 +1,17 @@
 from django.db import models
 from clients.models import Client
 
+class CaseType(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    code = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
 class Case(models.Model):
     title = models.CharField(max_length=255)
     caseNumber = models.CharField(max_length=100, null=True, blank=True)
-    type = models.CharField(max_length=100)
+    caseType = models.ForeignKey(CaseType, on_delete=models.PROTECT, related_name="cases", null=True, blank=True)
     status = models.CharField(max_length=50, default="active")
     priority = models.CharField(max_length=50, default="medium")
     description = models.TextField(null=True, blank=True)
@@ -14,23 +21,26 @@ class Case(models.Model):
     updatedAt = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if not self.caseNumber:
+        if not self.caseNumber and self.caseType:
             from django.utils import timezone
             year = timezone.now().year
             
-            # Get type code (First letters of each word)
-            type_code = "".join([word[0].upper() for word in self.type.split()])
+            # Use provided code or get type code (First letters of each word)
+            if self.caseType.code:
+                type_code = self.caseType.code
+            else:
+                type_code = "".join([word[0].upper() for word in self.caseType.name.split()])
             
             # Count existing cases of same type in same year
             count = Case.objects.filter(
-                type=self.type,
+                caseType=self.caseType,
                 createdAt__year=year
             ).count()
             
             # Fallback if createdAt isn't set yet (for new records before save)
             if count == 0:
                 from django.db.models import Q
-                count = Case.objects.filter(type=self.type).filter(
+                count = Case.objects.filter(caseType=self.caseType).filter(
                     Q(caseNumber__contains=f"/{year}/")
                 ).count()
 

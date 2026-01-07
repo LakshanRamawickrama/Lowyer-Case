@@ -275,11 +275,11 @@ export default function Dashboard() {
                   <div key={caseItem.id} className="flex items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 rounded-lg border border-border/50 hover:border-indigo-500/50 transition-colors">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
-                        {getCaseIcon(caseItem.type)}
+                        {getCaseIcon(caseItem.type_details?.name || "")}
                       </div>
                       <div>
                         <h4 className="font-medium text-foreground">{caseItem.title}</h4>
-                        <p className="text-sm text-muted-foreground">{caseItem.type}</p>
+                        <p className="text-sm text-muted-foreground">{caseItem.type_details?.name || "N/A"}</p>
                       </div>
                     </div>
                     <div className="text-right">

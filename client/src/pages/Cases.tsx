@@ -15,6 +15,7 @@ import { CaseForm } from "@/components/CaseForm";
 import { CaseDetails } from "@/components/CaseDetails";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { useCases, useCreateCase, useUpdateCase, useDeleteCase, useUploadDocument } from "@/hooks/use-cases";
+import { useCaseTypes } from "@/hooks/use-case-types";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus,
@@ -49,6 +50,7 @@ export default function Cases() {
   }, []);
 
   const { data: cases = [], isLoading } = useCases();
+  const { data: caseTypes = [] } = useCaseTypes();
   const createCaseMutation = useCreateCase();
   const updateCaseMutation = useUpdateCase();
   const deleteCaseMutation = useDeleteCase();
@@ -88,7 +90,7 @@ export default function Cases() {
       caseItem.nic?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = statusFilter === "all" || caseItem.status === statusFilter;
-    const matchesType = typeFilter === "all" || caseItem.type === typeFilter;
+    const matchesType = typeFilter === "all" || caseItem.type_details?.name === typeFilter;
 
     return matchesSearch && matchesStatus && matchesType;
   });
@@ -221,14 +223,11 @@ export default function Cases() {
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
             <SelectItem value="all" className="text-foreground hover:bg-muted">All Types</SelectItem>
-            <SelectItem value="Civil Law" className="text-foreground hover:bg-muted">Civil Law</SelectItem>
-            <SelectItem value="Criminal Law" className="text-foreground hover:bg-muted">Criminal Law</SelectItem>
-            <SelectItem value="Commercial Law" className="text-foreground hover:bg-muted">Commercial Law</SelectItem>
-            <SelectItem value="Family Law" className="text-foreground hover:bg-muted">Family Law</SelectItem>
-            <SelectItem value="Land Law" className="text-foreground hover:bg-muted">Land Law</SelectItem>
-            <SelectItem value="Fundamental Rights" className="text-foreground hover:bg-muted">Fundamental Rights</SelectItem>
-            <SelectItem value="Estate Planning" className="text-foreground hover:bg-muted">Estate Planning</SelectItem>
-            <SelectItem value="Real Estate" className="text-foreground hover:bg-muted">Real Estate</SelectItem>
+            {caseTypes.map((type) => (
+              <SelectItem key={type.id} value={type.name} className="text-foreground hover:bg-muted">
+                {type.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -280,7 +279,7 @@ export default function Cases() {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center min-w-0 flex-1">
                     <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 shadow-sm shadow-indigo-500/20">
-                      {getCaseIcon(caseItem.type)}
+                      {getCaseIcon(caseItem.type_details?.name || "")}
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="font-semibold text-foreground text-sm lg:text-base truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{caseItem.title}</h3>
@@ -310,7 +309,7 @@ export default function Cases() {
                 <div className="space-y-2 lg:space-y-3">
                   <div className="flex items-center justify-between text-xs lg:text-sm">
                     <span className="text-muted-foreground">Type:</span>
-                    <span className="text-foreground font-medium truncate ml-2">{caseItem.type}</span>
+                    <span className="text-foreground font-medium truncate ml-2">{caseItem.type_details?.name || "N/A"}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs lg:text-sm">
                     <span className="text-muted-foreground">Client:</span>
