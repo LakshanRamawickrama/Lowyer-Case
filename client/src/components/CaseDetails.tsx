@@ -20,9 +20,11 @@ import {
     Building,
     Download,
     File,
+    Eye,
 } from "lucide-react";
 import type { CaseWithClient } from "@shared/schema";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 interface CaseDetailsProps {
     caseData: CaseWithClient | null;
@@ -32,7 +34,48 @@ interface CaseDetailsProps {
 }
 
 export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetailsProps) {
+    const { toast } = useToast();
+
     if (!caseData) return null;
+
+    const handleShowDocument = (fileUrl: string) => {
+        window.open(fileUrl, '_blank');
+    };
+
+    const handleDownload = async (fileUrl: string, fileName: string) => {
+        try {
+            // Ensure URL is relative to work with the proxy
+            const url = fileUrl.startsWith('http')
+                ? new URL(fileUrl).pathname
+                : fileUrl;
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Download failed');
+
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+
+            toast({
+                title: "Download Started",
+                description: `Downloading ${fileName}`,
+            });
+        } catch (error) {
+            console.error('Download error:', error);
+            // Fallback: try opening in new tab
+            window.open(fileUrl, '_blank');
+            toast({
+                title: "Download Started",
+                description: "Opening document in new tab",
+            });
+        }
+    };
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
@@ -172,20 +215,18 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                     </div>
 
                     <div className="mt-8 space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                <File className="w-5 h-5 text-indigo-500" /> Documents
-                                <span className="text-xs font-normal text-muted-foreground ml-2">
-                                    ({caseData.documents?.length || 0})
-                                </span>
-                            </h3>
-                        </div>
+                        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                            <File className="w-5 h-5 text-indigo-500" /> Documents
+                            <span className="text-xs font-normal text-muted-foreground ml-2">
+                                ({caseData.documents?.length || 0})
+                            </span>
+                        </h3>
 
                         <div className="bg-muted/30 rounded-xl border border-border/50 divide-y divide-border/50">
                             {caseData.documents && caseData.documents.length > 0 ? (
                                 caseData.documents.map((doc) => (
                                     <div key={doc.id} className="p-3 flex items-center justify-between group hover:bg-muted/50 transition-colors">
-                                        <div className="flex items-center gap-3 overflow-hidden">
+                                        <div className="flex items-center gap-3 overflow-hidden mr-2">
                                             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0">
                                                 <FileText className="w-4 h-4" />
                                             </div>
@@ -198,16 +239,24 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex items-center gap-1 shrink-0">
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
                                                 className="h-8 w-8 text-muted-foreground hover:text-indigo-500"
-                                                asChild
+                                                onClick={() => handleShowDocument(doc.file)}
+                                                title="View Document"
                                             >
-                                                <a href={doc.file} target="_blank" rel="noopener noreferrer">
-                                                    <Download className="w-4 h-4" />
-                                                </a>
+                                                <Eye className="w-4 h-4" />
+                                            </Button>
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8 text-muted-foreground hover:text-indigo-500"
+                                                onClick={() => handleDownload(doc.file, doc.title)}
+                                                title="Download Document"
+                                            >
+                                                <Download className="w-4 h-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -237,6 +286,6 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                     </div>
                 </div>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 }

@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select";
 import { useClients } from "@/hooks/use-clients";
 import { useState, useRef, useEffect } from "react";
-import { FileText, Upload, Trash2, X, Plus, Loader2, File } from "lucide-react";
+import { FileText, Upload, Trash2, X, Plus, Loader2, File, Download } from "lucide-react";
 import { useUploadDocument, useDeleteDocument } from "@/hooks/use-cases";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -175,6 +175,40 @@ export function CaseForm({
         title: "Error",
         description: "Failed to delete document",
         variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownload = async (fileUrl: string, fileName: string) => {
+    try {
+      // Ensure URL is relative to work with the proxy
+      const url = fileUrl.startsWith('http')
+        ? new URL(fileUrl).pathname
+        : fileUrl;
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Download failed');
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+      toast({
+        title: "Download Started",
+        description: `Downloading ${fileName}`,
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      window.open(fileUrl, '_blank');
+      toast({
+        title: "Download Started",
+        description: "Opening document in new tab",
       });
     }
   };
@@ -397,15 +431,26 @@ export function CaseForm({
                         <FileText className="w-4 h-4 text-indigo-400 shrink-0" />
                         <span className="text-xs text-foreground truncate">{doc.title}</span>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleDeleteExistingDoc(doc.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-indigo-500"
+                          onClick={() => handleDownload(doc.file, doc.title)}
+                        >
+                          <Download className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-red-500"
+                          onClick={() => handleDeleteExistingDoc(doc.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
 
