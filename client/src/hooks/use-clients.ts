@@ -16,7 +16,7 @@ export function useClient(id: number) {
 
 export function useCreateClient() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (data: InsertClient) => {
       const response = await apiRequest("POST", "/api/clients", data);
@@ -31,7 +31,7 @@ export function useCreateClient() {
 
 export function useUpdateClient() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<InsertClient> }) => {
       const response = await apiRequest("PUT", `/api/clients/${id}`, data);
@@ -46,10 +46,11 @@ export function useUpdateClient() {
 
 export function useDeleteClient() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await apiRequest("DELETE", `/api/clients/${id}`);
+      if (response.status === 204) return null;
       return response.json();
     },
     onSuccess: () => {

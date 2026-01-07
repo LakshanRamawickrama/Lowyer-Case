@@ -16,7 +16,7 @@ export function useReminder(id: number) {
 
 export function useCreateReminder() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (data: InsertReminder) => {
       const response = await apiRequest("POST", "/api/reminders", data);
@@ -31,7 +31,7 @@ export function useCreateReminder() {
 
 export function useUpdateReminder() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<InsertReminder> }) => {
       const response = await apiRequest("PUT", `/api/reminders/${id}`, data);
@@ -47,10 +47,11 @@ export function useUpdateReminder() {
 
 export function useDeleteReminder() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await apiRequest("DELETE", `/api/reminders/${id}`);
+      if (response.status === 204) return null;
       return response.json();
     },
     onSuccess: () => {

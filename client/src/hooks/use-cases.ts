@@ -51,6 +51,7 @@ export function useDeleteCase() {
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await apiRequest("DELETE", `/api/cases/${id}`);
+      if (response.status === 204) return null;
       return response.json();
     },
     onSuccess: () => {
@@ -96,6 +97,7 @@ export function useDeleteDocument() {
   return useMutation({
     mutationFn: async ({ id, caseId }: { id: number; caseId: number }) => {
       const response = await apiRequest("DELETE", `/api/case-documents/${id}`);
+      if (response.status === 204) return null;
       return response.json();
     },
     onSuccess: (_, variables) => {
