@@ -91,6 +91,7 @@ export function CaseForm({
       priority: initialData?.priority || "medium",
       description: initialData?.description || "",
       clientId: initialData?.clientId || undefined,
+      nic: initialData?.nic || "",
     },
   });
 
@@ -106,6 +107,7 @@ export function CaseForm({
           priority: "medium",
           description: "",
           clientId: undefined,
+          nic: "",
         });
         setPendingFiles([]);
       } else {
@@ -117,10 +119,25 @@ export function CaseForm({
           priority: initialData.priority,
           description: initialData.description || "",
           clientId: initialData.clientId || undefined,
+          nic: initialData.nic || "",
         });
       }
     }
   }, [open, initialData, form]);
+
+  // Auto-generate case number
+  const caseType = form.watch("type");
+  const nic = form.watch("nic");
+  const currentCaseNumber = form.watch("caseNumber");
+
+  useEffect(() => {
+    if (!initialData && caseType && nic && !currentCaseNumber) {
+      const year = new Date().getFullYear();
+      const typeCode = caseType.split(" ").map(word => word[0]).join("").toUpperCase();
+      const generatedNumber = `${typeCode}/${year}/${nic}`;
+      form.setValue("caseNumber", generatedNumber);
+    }
+  }, [caseType, nic, initialData, form, currentCaseNumber]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -253,6 +270,28 @@ export function CaseForm({
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="nic"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground/80 font-medium">NIC *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter NIC number"
+                          className="bg-card border-border text-foreground focus:ring-indigo-500 h-10"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="caseNumber"
@@ -505,6 +544,6 @@ export function CaseForm({
           </Form>
         </div>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }

@@ -56,6 +56,7 @@ export interface Case {
     priority: string;
     description: string | null;
     clientId: number | null;
+    nic: string | null;
     createdAt: string;
     updatedAt: string;
     documents?: CaseDocument[];
@@ -64,6 +65,7 @@ export interface Case {
 export const insertCaseSchema = z.object({
     title: z.string().min(1, "Title is required"),
     caseNumber: z.string().optional().nullable().or(z.literal("")),
+    nic: z.string().optional().nullable().or(z.literal("")),
     type: z.string().min(1, "Case type is required"),
     status: z.string().default("active"),
     priority: z.string().default("medium"),
