@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CaseForm } from "@/components/CaseForm";
+import { CaseDetails } from "@/components/CaseDetails";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
-import { useCases, useCreateCase, useDeleteCase } from "@/hooks/use-cases";
+import { useCases, useCreateCase, useUpdateCase, useDeleteCase } from "@/hooks/use-cases";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus,
@@ -31,14 +32,25 @@ import { format } from "date-fns";
 export default function Cases() {
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedCase, setSelectedCase] = useState<CaseWithClient | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [caseToDelete, setCaseToDelete] = useState<CaseWithClient | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get("search");
+    if (search) {
+      setSearchTerm(search);
+    }
+  }, []);
+
   const { data: cases = [], isLoading } = useCases();
   const createCaseMutation = useCreateCase();
+  const updateCaseMutation = useUpdateCase();
   const deleteCaseMutation = useDeleteCase();
 
   const getCaseIcon = (type: string) => {
@@ -76,21 +88,41 @@ export default function Cases() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  const handleCreateCase = async (data: InsertCase) => {
+  const handleSubmitCase = async (data: InsertCase) => {
     try {
-      await createCaseMutation.mutateAsync(data);
+      if (selectedCase) {
+        await updateCaseMutation.mutateAsync({ id: selectedCase.id, data });
+        toast({
+          title: "Success",
+          description: "Case updated successfully.",
+        });
+      } else {
+        await createCaseMutation.mutateAsync(data);
+        toast({
+          title: "Success",
+          description: "Case created successfully.",
+        });
+      }
       setIsFormOpen(false);
-      toast({
-        title: "Success",
-        description: "Case created successfully.",
-      });
+      setSelectedCase(null);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create case. Please try again.",
+        description: `Failed to ${selectedCase ? 'update' : 'create'} case. Please try again.`,
         variant: "destructive",
       });
     }
+  };
+
+  const handleViewDetails = (caseItem: CaseWithClient) => {
+    setSelectedCase(caseItem);
+    setIsDetailsOpen(true);
+  };
+
+  const handleEditCase = (caseItem: CaseWithClient) => {
+    setSelectedCase(caseItem);
+    setIsDetailsOpen(false);
+    setIsFormOpen(true);
   };
 
   const handleDeleteCase = (caseItem: CaseWithClient) => {
@@ -127,7 +159,10 @@ export default function Cases() {
           <p className="text-muted-foreground mt-1">Manage your legal cases and documentation</p>
         </div>
         <Button
-          onClick={() => setIsFormOpen(true)}
+          onClick={() => {
+            setSelectedCase(null);
+            setIsFormOpen(true);
+          }}
           className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -235,6 +270,7 @@ export default function Cases() {
                       variant="ghost"
                       size="sm"
                       className="p-1 lg:p-2 text-muted-foreground hover:text-foreground h-8 w-8"
+                      onClick={() => handleEditCase(caseItem)}
                     >
                       <Edit className="w-3 h-3 lg:w-4 lg:h-4" />
                     </Button>
@@ -273,7 +309,10 @@ export default function Cases() {
                 </div>
 
                 <div className="mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-border/50">
-                  <Button className="w-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border-none h-8 lg:h-10 text-xs lg:text-sm font-medium transition-colors">
+                  <Button
+                    className="w-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border-none h-8 lg:h-10 text-xs lg:text-sm font-medium transition-colors"
+                    onClick={() => handleViewDetails(caseItem)}
+                  >
                     View Details
                   </Button>
                 </div>
@@ -287,8 +326,17 @@ export default function Cases() {
       <CaseForm
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        onSubmit={handleCreateCase}
-        isLoading={createCaseMutation.isPending}
+        onSubmit={handleSubmitCase}
+        isLoading={createCaseMutation.isPending || updateCaseMutation.isPending}
+        initialData={selectedCase || undefined}
+      />
+
+      {/* Case Details Modal */}
+      <CaseDetails
+        caseData={selectedCase}
+        open={isDetailsOpen}
+        onOpenChange={setIsDetailsOpen}
+        onEdit={handleEditCase}
       />
 
       {/* Delete Confirmation Dialog */}

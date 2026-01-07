@@ -6,8 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ClientForm } from "@/components/ClientForm";
+import { ClientDetails } from "@/components/ClientDetails";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
-import { useClients, useCreateClient, useDeleteClient } from "@/hooks/use-clients";
+import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "@/hooks/use-clients";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus,
@@ -23,12 +24,15 @@ import type { InsertClient, Client } from "@shared/schema";
 export default function Clients() {
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: clients = [], isLoading } = useClients();
   const createClientMutation = useCreateClient();
+  const updateClientMutation = useUpdateClient();
   const deleteClientMutation = useDeleteClient();
 
   const getInitials = (name: string) => {
@@ -70,21 +74,41 @@ export default function Clients() {
       client.phone?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const handleCreateClient = async (data: InsertClient) => {
+  const handleSubmitClient = async (data: InsertClient) => {
     try {
-      await createClientMutation.mutateAsync(data);
+      if (selectedClient) {
+        await updateClientMutation.mutateAsync({ id: selectedClient.id, data });
+        toast({
+          title: "Success",
+          description: "Client updated successfully.",
+        });
+      } else {
+        await createClientMutation.mutateAsync(data);
+        toast({
+          title: "Success",
+          description: "Client created successfully.",
+        });
+      }
       setIsFormOpen(false);
-      toast({
-        title: "Success",
-        description: "Client created successfully.",
-      });
+      setSelectedClient(null);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create client. Please try again.",
+        description: `Failed to ${selectedClient ? 'update' : 'create'} client. Please try again.`,
         variant: "destructive",
       });
     }
+  };
+
+  const handleViewDetails = (client: Client) => {
+    setSelectedClient(client);
+    setIsDetailsOpen(true);
+  };
+
+  const handleEditClient = (client: Client) => {
+    setSelectedClient(client);
+    setIsDetailsOpen(false);
+    setIsFormOpen(true);
   };
 
   const handleDeleteClient = (client: Client) => {
@@ -121,7 +145,10 @@ export default function Clients() {
           <p className="text-muted-foreground mt-1">Manage your client relationships and information</p>
         </div>
         <Button
-          onClick={() => setIsFormOpen(true)}
+          onClick={() => {
+            setSelectedClient(null);
+            setIsFormOpen(true);
+          }}
           className="bg-indigo-600 hover:bg-indigo-700 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -202,6 +229,7 @@ export default function Clients() {
                       variant="ghost"
                       size="sm"
                       className="p-1 lg:p-2 text-muted-foreground hover:text-foreground h-8 w-8"
+                      onClick={() => handleEditClient(client)}
                     >
                       <Edit className="w-3 h-3 lg:w-4 lg:h-4" />
                     </Button>
@@ -237,9 +265,9 @@ export default function Clients() {
                   <Button
                     variant="outline"
                     className="flex-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 border-none text-xs lg:text-sm h-8 lg:h-9 font-medium"
-                    onClick={() => {/* Navigate to client cases */ }}
+                    onClick={() => handleViewDetails(client)}
                   >
-                    View Cases
+                    View Details
                   </Button>
                   <div className="flex gap-2">
                     {client.phone && (
@@ -274,8 +302,17 @@ export default function Clients() {
       <ClientForm
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        onSubmit={handleCreateClient}
-        isLoading={createClientMutation.isPending}
+        onSubmit={handleSubmitClient}
+        isLoading={createClientMutation.isPending || updateClientMutation.isPending}
+        initialData={selectedClient || undefined}
+      />
+
+      {/* Client Details Modal */}
+      <ClientDetails
+        client={selectedClient}
+        open={isDetailsOpen}
+        onOpenChange={setIsDetailsOpen}
+        onEdit={handleEditClient}
       />
 
       {/* Delete Confirmation Dialog */}
