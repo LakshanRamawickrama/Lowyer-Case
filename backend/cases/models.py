@@ -13,6 +13,31 @@ class Case(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        if not self.caseNumber:
+            from django.utils import timezone
+            year = timezone.now().year
+            
+            # Get type code (First letters of each word)
+            type_code = "".join([word[0].upper() for word in self.type.split()])
+            
+            # Count existing cases of same type in same year
+            count = Case.objects.filter(
+                type=self.type,
+                createdAt__year=year
+            ).count()
+            
+            # Fallback if createdAt isn't set yet (for new records before save)
+            if count == 0:
+                from django.db.models import Q
+                count = Case.objects.filter(type=self.type).filter(
+                    Q(caseNumber__contains=f"/{year}/")
+                ).count()
+
+            self.caseNumber = f"{type_code}/{year}/{(count + 1):03d}"
+            
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.caseNumber} - {self.title}" if self.caseNumber else self.title
 

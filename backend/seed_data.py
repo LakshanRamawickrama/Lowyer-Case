@@ -60,8 +60,8 @@ def seed():
     cases_data = [
         {
             "title": "Land Partition Case - Nuwara Eliya",
-            "caseNumber": "LP/2024/NE/102",
             "type": "Civil Law",
+            "nic": "198512345678",
             "status": "active",
             "priority": "high",
             "description": "Partition action for a tea estate property in Nuwara Eliya district. Title report currently under review.",
@@ -69,8 +69,8 @@ def seed():
         },
         {
             "title": "Fundamental Rights Petition (SC)",
-            "caseNumber": "SC/FR/2024/45",
             "type": "Fundamental Rights",
+            "nic": "197898765432",
             "status": "active",
             "priority": "urgent",
             "description": "Petition filed in the Supreme Court regarding illegal detention under PTA. Support hearing scheduled.",
@@ -78,8 +78,8 @@ def seed():
         },
         {
             "title": "Spectrum Licensing Arbitration",
-            "caseNumber": "ARB/COL/2024/11",
             "type": "Commercial Law",
+            "nic": "199055566677",
             "status": "active",
             "priority": "medium",
             "description": "Arbitration proceedings regarding TRCSL spectrum allocation and usage fees.",
@@ -87,8 +87,8 @@ def seed():
         },
         {
             "title": "Hemas Trade Mark Infringement",
-            "caseNumber": "CHC/IP/2024/09",
             "type": "Civil Law",
+            "nic": "196544433322",
             "status": "pending",
             "priority": "high",
             "description": "Commercial High Court case regarding intellectual property infringement of personal care brands.",
@@ -96,8 +96,8 @@ def seed():
         },
         {
             "title": "Galle Face Hotel Lease Renewal",
-            "caseNumber": "LR/2024/005",
             "type": "Land Law",
+            "nic": "197211122233",
             "status": "review",
             "priority": "medium",
             "description": "Long-term land lease renewal review with UDA for seafront property expansion.",

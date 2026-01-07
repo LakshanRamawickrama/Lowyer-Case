@@ -125,19 +125,6 @@ export function CaseForm({
     }
   }, [open, initialData, form]);
 
-  // Auto-generate case number
-  const caseType = form.watch("type");
-  const nic = form.watch("nic");
-  const currentCaseNumber = form.watch("caseNumber");
-
-  useEffect(() => {
-    if (!initialData && caseType && nic && !currentCaseNumber) {
-      const year = new Date().getFullYear();
-      const typeCode = caseType.split(" ").map(word => word[0]).join("").toUpperCase();
-      const generatedNumber = `${typeCode}/${year}/${nic}`;
-      form.setValue("caseNumber", generatedNumber);
-    }
-  }, [caseType, nic, initialData, form, currentCaseNumber]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
