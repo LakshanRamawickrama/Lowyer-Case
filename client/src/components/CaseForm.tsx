@@ -43,11 +43,13 @@ interface CaseFormProps {
 }
 
 const caseTypes = [
-  "Personal Injury",
-  "Corporate Law",
+  "Civil Law",
   "Criminal Law",
-  "Estate Planning",
+  "Commercial Law",
   "Family Law",
+  "Land Law",
+  "Fundamental Rights",
+  "Estate Planning",
   "Real Estate",
 ];
 

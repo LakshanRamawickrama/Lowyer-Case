@@ -58,7 +58,10 @@ export default function Cases() {
     switch (type) {
       case "Criminal Law": return <Gavel className="w-6 h-6" />;
       case "Family Law": return <Handshake className="w-6 h-6" />;
-      case "Corporate Law": return <Building className="w-6 h-6" />;
+      case "Commercial Law": return <Building className="w-6 h-6" />;
+      case "Land Law": return <Building className="w-6 h-6" />;
+      case "Civil Law": return <Gavel className="w-6 h-6" />;
+      case "Fundamental Rights": return <Gavel className="w-6 h-6" />;
       default: return <Gavel className="w-6 h-6" />;
     }
   };
@@ -218,11 +221,14 @@ export default function Cases() {
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
             <SelectItem value="all" className="text-foreground hover:bg-muted">All Types</SelectItem>
-            <SelectItem value="Personal Injury" className="text-foreground hover:bg-muted">Personal Injury</SelectItem>
-            <SelectItem value="Corporate Law" className="text-foreground hover:bg-muted">Corporate Law</SelectItem>
-            <SelectItem value="Estate Law" className="text-foreground hover:bg-muted">Estate Law</SelectItem>
+            <SelectItem value="Civil Law" className="text-foreground hover:bg-muted">Civil Law</SelectItem>
             <SelectItem value="Criminal Law" className="text-foreground hover:bg-muted">Criminal Law</SelectItem>
+            <SelectItem value="Commercial Law" className="text-foreground hover:bg-muted">Commercial Law</SelectItem>
             <SelectItem value="Family Law" className="text-foreground hover:bg-muted">Family Law</SelectItem>
+            <SelectItem value="Land Law" className="text-foreground hover:bg-muted">Land Law</SelectItem>
+            <SelectItem value="Fundamental Rights" className="text-foreground hover:bg-muted">Fundamental Rights</SelectItem>
+            <SelectItem value="Estate Planning" className="text-foreground hover:bg-muted">Estate Planning</SelectItem>
+            <SelectItem value="Real Estate" className="text-foreground hover:bg-muted">Real Estate</SelectItem>
           </SelectContent>
         </Select>
       </div>

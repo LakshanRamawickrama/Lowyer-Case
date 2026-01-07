@@ -109,7 +109,10 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
         switch (type) {
             case "Criminal Law": return <Gavel className="w-6 h-6" />;
             case "Family Law": return <Handshake className="w-6 h-6" />;
-            case "Corporate Law": return <Building className="w-6 h-6" />;
+            case "Commercial Law": return <Building className="w-6 h-6" />;
+            case "Land Law": return <Building className="w-6 h-6" />;
+            case "Civil Law": return <Gavel className="w-6 h-6" />;
+            case "Fundamental Rights": return <Gavel className="w-6 h-6" />;
             default: return <Gavel className="w-6 h-6" />;
         }
     };

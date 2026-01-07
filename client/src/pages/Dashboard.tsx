@@ -56,7 +56,10 @@ export default function Dashboard() {
     switch (type) {
       case "Criminal Law": return <Gavel className="w-5 h-5" />;
       case "Family Law": return <Handshake className="w-5 h-5" />;
-      case "Corporate Law": return <Building className="w-5 h-5" />;
+      case "Commercial Law": return <Building className="w-5 h-5" />;
+      case "Land Law": return <Building className="w-5 h-5" />;
+      case "Civil Law": return <Gavel className="w-5 h-5" />;
+      case "Fundamental Rights": return <Gavel className="w-5 h-5" />;
       default: return <Folder className="w-5 h-5" />;
     }
   };
