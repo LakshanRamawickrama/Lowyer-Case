@@ -11,6 +11,8 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 class CaseViewSet(viewsets.ModelViewSet):
     queryset = Case.objects.all().order_by('-createdAt')
     serializer_class = CaseSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.AllowAny]
     
     def get_queryset(self):
         queryset = Case.objects.all().order_by('-createdAt')
