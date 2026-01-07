@@ -8,3 +8,9 @@ class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [permissions.AllowAny]
+
+    def perform_destroy(self, instance):
+        # Explicitly delete all cases associated with this client
+        # This will also trigger cascading deletes for CaseDocuments and Reminders
+        instance.cases.all().delete()
+        instance.delete()
