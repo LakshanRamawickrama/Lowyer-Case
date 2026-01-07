@@ -18,17 +18,11 @@ import {
     Hash,
     Handshake,
     Building,
-    Upload,
-    Trash2,
     Download,
     File,
-    Loader2
 } from "lucide-react";
 import type { CaseWithClient } from "@shared/schema";
 import { format } from "date-fns";
-import { useUploadDocument, useDeleteDocument } from "@/hooks/use-cases";
-import { useState, useRef } from "react";
-import { useToast } from "@/hooks/use-toast";
 
 interface CaseDetailsProps {
     caseData: CaseWithClient | null;
@@ -38,56 +32,7 @@ interface CaseDetailsProps {
 }
 
 export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetailsProps) {
-    const { toast } = useToast();
-    const uploadMutation = useUploadDocument();
-    const deleteMutation = useDeleteDocument();
-    const [isUploading, setIsUploading] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
     if (!caseData) return null;
-
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        setIsUploading(true);
-        try {
-            await uploadMutation.mutateAsync({
-                caseId: caseData.id,
-                title: file.name,
-                file: file
-            });
-            toast({
-                title: "Success",
-                description: "Document uploaded successfully",
-            });
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to upload document",
-                variant: "destructive",
-            });
-        } finally {
-            setIsUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = "";
-        }
-    };
-
-    const handleDeleteDocument = async (docId: number) => {
-        try {
-            await deleteMutation.mutateAsync({ id: docId, caseId: caseData.id });
-            toast({
-                title: "Success",
-                description: "Document deleted successfully",
-            });
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to delete document",
-                variant: "destructive",
-            });
-        }
-    };
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
@@ -234,23 +179,6 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                                     ({caseData.documents?.length || 0})
                                 </span>
                             </h3>
-                            <div className="flex gap-2">
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    onChange={handleFileUpload}
-                                    className="hidden"
-                                />
-                                <Button
-                                    size="sm"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={isUploading}
-                                    className="bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 border-indigo-500/30 gap-2"
-                                >
-                                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                                    Upload
-                                </Button>
-                            </div>
                         </div>
 
                         <div className="bg-muted/30 rounded-xl border border-border/50 divide-y divide-border/50">
@@ -281,23 +209,12 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
                                                     <Download className="w-4 h-4" />
                                                 </a>
                                             </Button>
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="h-8 w-8 text-muted-foreground hover:text-red-500"
-                                                onClick={() => handleDeleteDocument(doc.id)}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div className="p-8 text-center">
-                                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
-                                        <Upload className="w-6 h-6 text-muted-foreground" />
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">No documents uploaded yet.</p>
+                                <div className="p-8 text-center text-muted-foreground text-sm">
+                                    No documents uploaded for this case.
                                 </div>
                             )}
                         </div>
