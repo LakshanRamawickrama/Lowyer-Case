@@ -28,6 +28,7 @@ export interface Client {
     phone: string | null;
     address: string | null;
     status: string;
+    cases?: Array<{ id: number; title: string; caseNumber: string | null }>;
     createdAt: string;
 }
 
@@ -67,6 +68,7 @@ export interface Case {
     createdAt: string;
     updatedAt: string;
     documents?: CaseDocument[];
+    reminders?: Array<{ id: number; title: string; dueDate: string }>;
 }
 
 export const insertCaseSchema = z.object({

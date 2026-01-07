@@ -25,7 +25,8 @@ import {
   Gavel,
   Handshake,
   Building,
-  Filter
+  Filter,
+  AlertTriangle
 } from "lucide-react";
 import type { InsertCase, CaseWithClient } from "@shared/schema";
 import { format } from "date-fns";
@@ -364,14 +365,32 @@ export default function Cases() {
         onEdit={handleEditCase}
       />
 
-      {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={confirmDelete}
         title="Delete Case"
         itemName={caseToDelete?.title}
-      />
+      >
+        {caseToDelete?.reminders && caseToDelete.reminders.length > 0 && (
+          <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg text-left">
+            <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" /> Warning: Associated Reminders
+            </p>
+            <p className="text-xs text-muted-foreground mb-3">
+              This case has {caseToDelete.reminders.length} scheduled reminders that will also be removed:
+            </p>
+            <div className="max-h-[150px] overflow-y-auto space-y-2">
+              {caseToDelete.reminders.map((r: { id: number; title: string; dueDate: string }) => (
+                <div key={r.id} className="p-2 bg-background/50 rounded border border-border/50">
+                  <p className="text-xs font-medium text-foreground">{r.title}</p>
+                  <p className="text-[10px] text-muted-foreground">{format(new Date(r.dueDate), "MMM d, yyyy")}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </DeleteConfirmationDialog>
     </div>
   );
 }

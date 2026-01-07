@@ -17,7 +17,8 @@ import {
   Trash2,
   Phone,
   Mail,
-  Users
+  Users,
+  AlertTriangle
 } from "lucide-react";
 import type { InsertClient, Client } from "@shared/schema";
 
@@ -315,14 +316,32 @@ export default function Clients() {
         onEdit={handleEditClient}
       />
 
-      {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={confirmDelete}
         title="Delete Client"
         itemName={clientToDelete?.name}
-      />
+      >
+        {clientToDelete?.cases && clientToDelete.cases.length > 0 && (
+          <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg text-left">
+            <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" /> Warning: Associated Cases
+            </p>
+            <p className="text-xs text-muted-foreground mb-3">
+              Deleting this client will also delete all associated cases and their documents:
+            </p>
+            <div className="max-h-[150px] overflow-y-auto space-y-2">
+              {clientToDelete.cases.map(c => (
+                <div key={c.id} className="p-2 bg-background/50 rounded border border-border/50">
+                  <p className="text-xs font-medium text-foreground">{c.title}</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">{c.caseNumber || 'No case number'}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </DeleteConfirmationDialog>
     </div>
   );
 }

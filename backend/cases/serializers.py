@@ -16,7 +16,11 @@ class CaseSerializer(serializers.ModelSerializer):
     client = ClientSerializer(source='clientId', read_only=True)
     documents = CaseDocumentSerializer(many=True, read_only=True)
     type_details = CaseTypeSerializer(source='caseType', read_only=True)
+    reminders = serializers.SerializerMethodField()
     
     class Meta:
         model = Case
         fields = '__all__'
+
+    def get_reminders(self, obj):
+        return list(obj.reminders.all().values('id', 'title', 'dueDate'))

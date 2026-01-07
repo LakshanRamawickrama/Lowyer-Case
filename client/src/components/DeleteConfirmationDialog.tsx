@@ -17,6 +17,7 @@ interface DeleteConfirmationDialogProps {
   title?: string;
   description?: string;
   itemName?: string;
+  children?: React.ReactNode;
 }
 
 export function DeleteConfirmationDialog({
@@ -26,6 +27,7 @@ export function DeleteConfirmationDialog({
   title = "Confirm Deletion",
   description = "Are you sure you want to delete this item? This action cannot be undone.",
   itemName,
+  children,
 }: DeleteConfirmationDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -40,6 +42,7 @@ export function DeleteConfirmationDialog({
           <AlertDialogDescription className="text-center text-muted-foreground">
             {itemName ? `Are you sure you want to delete "${itemName}"? This action cannot be undone.` : description}
           </AlertDialogDescription>
+          {children}
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:space-x-4">
           <AlertDialogCancel className="flex-1 bg-muted hover:bg-muted/80 text-foreground border-border">
