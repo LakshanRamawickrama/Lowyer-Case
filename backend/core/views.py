@@ -64,9 +64,11 @@ class UpdateProfileView(views.APIView):
 class DashboardStatsView(views.APIView):
     def get(self, request):
         total_cases = Case.objects.count()
-        active_cases = Case.objects.filter(status='active').count()
+        # Case-insensitive check for active status
+        active_cases = Case.objects.filter(status__iexact='active').count()
         total_clients = Client.objects.count()
-        pending_reminders = Reminder.objects.filter(completed=False, dueDate__gt=timezone.now()).count()
+        # Pending reminders are those not completed (including overdue ones)
+        pending_reminders = Reminder.objects.filter(completed=False).count()
         
         return Response({
             'totalCases': total_cases,

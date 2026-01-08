@@ -61,28 +61,26 @@ def seed():
     print(f"✅ Created {len(case_types)} standardized case types")
 
     # Real-feeling Sri Lankan Clients
-    # ... (clients_data)
     clients_data = [
-        {"name": "Dialog Axiata PLC (Legal Div)", "email": "legal@dialog.lk", "phone": "+94 11 777 8888", "address": "475, Union Place, Colombo 02", "status": "active"},
-        {"name": "Mr. Aruna Perera", "email": "aruna.p@gmail.com", "phone": "+94 77 123 4567", "address": "No. 45, Peradeniya Road, Kandy", "status": "active"},
-        {"name": "Ceylon Tea Exporters Ltd", "email": "info@ceylontea.lk", "phone": "+94 11 444 5555", "address": "Marine Drive, Colombo 03", "status": "active"},
-        {"name": "Mrs. Sunethra Ratnayake", "email": "sunethra.r@outlook.com", "phone": "+94 71 987 6543", "address": "Lotus Grove, Dehiwala", "status": "active"},
-        {"name": "Hemas Holdings PLC", "email": "compliance@hemas.com", "phone": "+94 11 231 3131", "address": "Hemas House, Colombo 02", "status": "active"},
-        {"name": "Galle Face Hotel Group", "email": "gm.legal@gallefacehotel.com", "phone": "+94 11 254 1010", "address": "02 Galle Road, Colombo 03", "status": "active"},
+        {"name": "Dialog Axiata PLC (Legal Div)", "nic": "199324500123", "email": "legal@dialog.lk", "phone": "+94 11 777 8888", "address": "475, Union Place, Colombo 02", "status": "active"},
+        {"name": "Mr. Aruna Perera", "nic": "781234567V", "email": "aruna.p@gmail.com", "phone": "+94 77 123 4567", "address": "No. 45, Peradeniya Road, Kandy", "status": "active"},
+        {"name": "Ceylon Tea Exporters Ltd", "nic": "200566700888", "email": "info@ceylontea.lk", "phone": "+94 11 444 5555", "address": "Marine Drive, Colombo 03", "status": "active"},
+        {"name": "Mrs. Sunethra Ratnayake", "nic": "658901234V", "email": "sunethra.r@outlook.com", "phone": "+94 71 987 6543", "address": "Lotus Grove, Dehiwala", "status": "active"},
+        {"name": "Hemas Holdings PLC", "nic": "198845600777", "email": "compliance@hemas.com", "phone": "+94 11 231 3131", "address": "Hemas House, Colombo 02", "status": "active"},
+        {"name": "Galle Face Hotel Group", "nic": "197512300444", "email": "gm.legal@gallefacehotel.com", "phone": "+94 11 254 1010", "address": "02 Galle Road, Colombo 03", "status": "active"},
     ]
 
     created_clients = []
     for data in clients_data:
         client = Client.objects.create(**data)
         created_clients.append(client)
-    print(f"✅ Created {len(created_clients)} local strategic clients")
+    print(f"✅ Created {len(created_clients)} local strategic clients with NIC details")
 
     # Real-feeling Sri Lankan Cases
     cases_data = [
         {
             "title": "Land Partition Case - Nuwara Eliya",
             "caseType": case_types["Civil Law"],
-            "nic": "198512345678",
             "status": "active",
             "priority": "high",
             "description": "Partition action for a tea estate property in Nuwara Eliya district. Title report currently under review.",
@@ -91,7 +89,6 @@ def seed():
         {
             "title": "Fundamental Rights Petition (SC)",
             "caseType": case_types["Fundamental Rights"],
-            "nic": "197898765432",
             "status": "active",
             "priority": "urgent",
             "description": "Petition filed in the Supreme Court regarding illegal detention under PTA. Support hearing scheduled.",
@@ -100,7 +97,6 @@ def seed():
         {
             "title": "Spectrum Licensing Arbitration",
             "caseType": case_types["Commercial Law"],
-            "nic": "199055566677",
             "status": "active",
             "priority": "medium",
             "description": "Arbitration proceedings regarding TRCSL spectrum allocation and usage fees.",
@@ -109,7 +105,6 @@ def seed():
         {
             "title": "Hemas Trade Mark Infringement",
             "caseType": case_types["Civil Law"],
-            "nic": "196544433322",
             "status": "pending",
             "priority": "high",
             "description": "Commercial High Court case regarding intellectual property infringement of personal care brands.",
@@ -118,7 +113,6 @@ def seed():
         {
             "title": "Galle Face Hotel Lease Renewal",
             "caseType": case_types["Land Law"],
-            "nic": "197211122233",
             "status": "review",
             "priority": "medium",
             "description": "Long-term land lease renewal review with UDA for seafront property expansion.",
