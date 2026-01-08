@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import {
   Form,
@@ -24,6 +24,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useToast } from "@/hooks/use-toast";
@@ -65,6 +76,7 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: stats } = useQuery<any>({
     queryKey: ["/api/dashboard/stats"],
@@ -147,6 +159,42 @@ export default function Profile() {
     },
   });
 
+  const uploadAvatarMutation = useMutation({
+    mutationFn: async (file: File) => {
+      if (!user) throw new Error("User not found");
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const response = await fetch(`/api/user/${user.id}`, {
+        method: "PUT",
+        body: formData,
+        // Don't set Content-Type, browser will set it with boundary
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to upload avatar");
+      }
+
+      return response.json();
+    },
+    onSuccess: async () => {
+      await refreshUser();
+      toast({
+        title: "Success",
+        description: "Avatar updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to upload avatar.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleProfileUpdate = (data: ProfileUpdateData) => {
     updateProfileMutation.mutate(data);
   };
@@ -176,6 +224,7 @@ export default function Profile() {
               {/* Avatar Section */}
               <div className="flex items-center space-x-6">
                 <Avatar className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/20">
+                  {user.avatar && <AvatarImage src={user.avatar} className="object-cover" />}
                   <AvatarFallback className="text-2xl font-bold text-white bg-transparent">
                     {getInitials(user.fullName || user.username)}
                   </AvatarFallback>
@@ -185,20 +234,74 @@ export default function Profile() {
                     {user.fullName || user.username}
                   </h4>
                   <p className="text-muted-foreground">Legal Professional</p>
-                  <Button
-                    variant="link"
-                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 p-0 h-auto text-sm mt-1"
-                    onClick={() => {
-                      // Generate new avatar colors based on name
-                      const newInitials = getInitials(user?.fullName || user?.username || "U");
-                      toast({
-                        title: "Avatar Updated",
-                        description: "Your avatar has been refreshed with new colors.",
-                      });
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        uploadAvatarMutation.mutate(file);
+                      }
                     }}
-                  >
-                    Change Avatar
-                  </Button>
+                  />
+                  <div className="flex items-center space-x-3 mt-1">
+                    <Button
+                      variant="link"
+                      className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 p-0 h-auto text-sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadAvatarMutation.isPending}
+                    >
+                      {uploadAvatarMutation.isPending ? "Uploading..." : "Change Avatar"}
+                    </Button>
+                    {user.avatar && (
+                      <>
+                        <span className="text-muted-foreground text-xs">•</span>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="link"
+                              className="text-red-500 hover:text-red-600 p-0 h-auto text-sm"
+                            >
+                              Remove
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="bg-card border-border">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="text-foreground">Remove Profile Photo?</AlertDialogTitle>
+                              <AlertDialogDescription className="text-muted-foreground">
+                                This will delete your custom profile picture and revert to the default initials. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="bg-muted hover:bg-muted/80 text-foreground border-border">Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-red-600 hover:bg-red-700 text-white border-none"
+                                onClick={async () => {
+                                  try {
+                                    const response = await fetch(`/api/user/${user.id}`, {
+                                      method: "PUT",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ avatar: null }),
+                                    });
+                                    if (response.ok) {
+                                      await refreshUser();
+                                      toast({ title: "Success", description: "Avatar removed." });
+                                    }
+                                  } catch (e) {
+                                    toast({ title: "Error", description: "Failed to remove avatar.", variant: "destructive" });
+                                  }
+                                }}
+                              >
+                                Remove Photo
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -321,6 +424,7 @@ export default function Profile() {
                       type="button"
                       variant="ghost"
                       className="text-muted-foreground hover:text-foreground"
+                      onClick={() => profileForm.reset()}
                     >
                       Cancel
                     </Button>

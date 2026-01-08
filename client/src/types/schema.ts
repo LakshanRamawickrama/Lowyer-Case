@@ -8,6 +8,7 @@ export interface User {
     phone: string | null;
     barNumber: string | null;
     practiceAreas: string | null;
+    avatar: string | null;
     createdAt: string;
 }
 

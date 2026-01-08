@@ -6,6 +6,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=50, null=True, blank=True)
     barNumber = models.CharField(max_length=100, null=True, blank=True)
     practiceAreas = models.TextField(null=True, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
