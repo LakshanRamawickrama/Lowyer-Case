@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, SystemSettings
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,3 +22,8 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+class SystemSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SystemSettings
+        fields = ('adminEmail',)

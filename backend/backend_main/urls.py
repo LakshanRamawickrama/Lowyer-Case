@@ -4,7 +4,7 @@ from rest_framework import routers
 from clients.views import ClientViewSet
 from cases.views import CaseViewSet, CaseDocumentViewSet, CaseTypeViewSet
 from reminders.views import ReminderViewSet
-from core.views import UserViewSet, DashboardStatsView, LoginView, UpdateProfileView, LogoutView, MeView, SendTestEmailView
+from core.views import UserViewSet, DashboardStatsView, LoginView, UpdateProfileView, LogoutView, MeView, SendTestEmailView, SystemSettingsView
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'users', UserViewSet)
@@ -28,5 +28,6 @@ urlpatterns = [
     path('api/auth/me', MeView.as_view()),
     path('api/user/<int:pk>', UpdateProfileView.as_view()),
     path('api/test-email', SendTestEmailView.as_view(), name='test-email'),
+    path('api/system-settings', SystemSettingsView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

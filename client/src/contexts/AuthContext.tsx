@@ -79,12 +79,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include"
+      });
     } catch (e) {
       console.error("Logout error", e);
     }
     setUser(null);
     localStorage.removeItem("legal-flow-user");
+    window.location.href = "/login";
   };
 
   const refreshUser = async () => {
@@ -95,10 +99,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(data.user);
         if (data.user) {
           localStorage.setItem("legal-flow-user", JSON.stringify(data.user));
+        } else {
+          localStorage.removeItem("legal-flow-user");
+          window.location.href = "/login";
         }
+      } else {
+        setUser(null);
+        localStorage.removeItem("legal-flow-user");
+        window.location.href = "/login";
       }
     } catch (e) {
       console.error("Refresh user error", e);
+      window.location.href = "/login";
     }
   };
 

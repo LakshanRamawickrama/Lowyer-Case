@@ -21,8 +21,19 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+      <div className="min-h-screen bg-[#050510] flex flex-col items-center justify-center">
+        <div className="relative w-20 h-20 mb-8">
+          <div className="absolute inset-0 border-4 border-indigo-500/20 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-transparent border-t-indigo-500 rounded-full animate-spin"></div>
+          <div className="absolute inset-2 border-4 border-transparent border-b-purple-500 rounded-full animate-spin [animation-duration:1.5s]"></div>
+        </div>
+
+        <div className="text-center space-y-2">
+          <h2 className="text-white text-xl font-bold tracking-tight animate-pulse">LegalFlow</h2>
+          <p className="text-indigo-400/60 font-medium tracking-[0.2em] uppercase text-[10px]">
+            Initializing Secure Portal...
+          </p>
+        </div>
       </div>
     );
   }

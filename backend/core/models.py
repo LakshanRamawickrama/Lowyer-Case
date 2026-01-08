@@ -11,3 +11,13 @@ class User(AbstractUser):
     
     def __str__(self):
         return self.username
+
+class SystemSettings(models.Model):
+    adminEmail = models.EmailField(default="admin@gmail.com")
+    
+    class Meta:
+        verbose_name = "System Settings"
+        verbose_name_plural = "System Settings"
+
+    def __str__(self):
+        return "System Settings"
