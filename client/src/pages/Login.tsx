@@ -86,9 +86,9 @@ export default function Login() {
 
       <div className="w-full max-w-lg relative z-10 animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center mb-10">
-          <div className="w-24 h-24 mx-auto mb-6 relative group transition-transform hover:scale-110 duration-500">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl flex items-center justify-center shadow-2xl shadow-indigo-500/40 relative group transition-transform hover:scale-110 duration-500">
             <div className="absolute inset-0 bg-white/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
-            <img src={logo} alt="LegalFlow Logo" className="w-full h-full object-contain rounded-3xl drop-shadow-2xl" />
+            <Scale className="w-12 h-12 text-white relative z-10" />
           </div>
 
           <h1 className="text-5xl font-black text-white tracking-tighter mb-3">

@@ -15,7 +15,6 @@ import {
   Scale,
   Monitor
 } from "lucide-react";
-import logo from "@/assets/logo.png";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
@@ -36,7 +35,9 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex h-16 shrink-0 items-center">
           <div className="flex items-center">
-            <img src={logo} alt="LegalFlow Logo" className="w-10 h-10 mr-3 rounded-lg object-contain" />
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+              <Scale className="w-6 h-6 text-white" />
+            </div>
             <span className="text-xl font-bold text-sidebar-foreground">LegalFlow</span>
           </div>
         </div>
