@@ -54,6 +54,7 @@ export function ClientForm({
       name: initialData?.name || "",
       email: initialData?.email || "",
       phone: initialData?.phone || "",
+      nic: initialData?.nic || "",
       address: initialData?.address || "",
       status: initialData?.status || "active",
     },
@@ -99,6 +100,27 @@ export function ClientForm({
 
               <FormField
                 control={form.control}
+                name="nic"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground/80 text-sm font-medium">NIC Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter NIC number"
+                        className="bg-card border-border text-foreground h-11 text-sm focus:ring-indigo-500"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -116,9 +138,7 @@ export function ClientForm({
                   </FormItem>
                 )}
               />
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="phone"
@@ -137,7 +157,9 @@ export function ClientForm({
                   </FormItem>
                 )}
               />
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="status"

@@ -9,5 +9,13 @@ class ClientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_cases(self, obj):
-        # Using .values() to get a list of dicts with only necessary info
-        return list(obj.cases.all().values('id', 'title', 'caseNumber'))
+        cases = []
+        for case in obj.cases.all():
+            cases.append({
+                'id': case.id,
+                'title': case.title,
+                'caseNumber': case.caseNumber,
+                'documentCount': case.documents.count(),
+                'reminderCount': case.reminders.count()
+            })
+        return cases

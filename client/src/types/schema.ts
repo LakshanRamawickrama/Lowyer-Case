@@ -26,9 +26,16 @@ export interface Client {
     name: string;
     email: string | null;
     phone: string | null;
+    nic: string | null;
     address: string | null;
     status: string;
-    cases?: Array<{ id: number; title: string; caseNumber: string | null }>;
+    cases?: Array<{
+        id: number;
+        title: string;
+        caseNumber: string | null;
+        documentCount: number;
+        reminderCount: number;
+    }>;
     createdAt: string;
 }
 
@@ -36,6 +43,7 @@ export const insertClientSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email address").optional().nullable().or(z.literal("")),
     phone: z.string().optional().nullable().or(z.literal("")),
+    nic: z.string().optional().nullable().or(z.literal("")),
     address: z.string().optional().nullable().or(z.literal("")),
     status: z.string().default("active"),
 });
@@ -64,7 +72,6 @@ export interface Case {
     priority: string;
     description: string | null;
     clientId: number | null;
-    nic: string | null;
     createdAt: string;
     updatedAt: string;
     documents?: CaseDocument[];
@@ -74,7 +81,6 @@ export interface Case {
 export const insertCaseSchema = z.object({
     title: z.string().min(1, "Title is required"),
     caseNumber: z.string().optional().nullable().or(z.literal("")),
-    nic: z.string().optional().nullable().or(z.literal("")),
     caseType: z.number().min(1, "Case type is required"),
     status: z.string().default("active"),
     priority: z.string().default("medium"),

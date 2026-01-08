@@ -16,7 +16,6 @@ class Case(models.Model):
     priority = models.CharField(max_length=50, default="medium")
     description = models.TextField(null=True, blank=True)
     clientId = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="cases", null=True, blank=True)
-    nic = models.CharField(max_length=20, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 

@@ -85,7 +85,6 @@ export function CaseForm({
       priority: initialData?.priority || "medium",
       description: initialData?.description || "",
       clientId: initialData?.clientId || undefined,
-      nic: initialData?.nic || "",
     },
   });
 
@@ -101,7 +100,6 @@ export function CaseForm({
           priority: "medium",
           description: "",
           clientId: undefined,
-          nic: "",
         });
         setPendingFiles([]);
       } else {
@@ -113,7 +111,6 @@ export function CaseForm({
           priority: initialData.priority,
           description: initialData.description || "",
           clientId: initialData.clientId || undefined,
-          nic: initialData.nic || "",
         });
       }
     }
@@ -251,28 +248,6 @@ export function CaseForm({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="nic"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground/80 font-medium">NIC *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter NIC number"
-                          className="bg-card border-border text-foreground focus:ring-indigo-500 h-10"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="caseNumber"

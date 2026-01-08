@@ -88,7 +88,7 @@ export default function Cases() {
     const matchesSearch = caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       caseItem.caseNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       caseItem.client?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      caseItem.nic?.toLowerCase().includes(searchTerm.toLowerCase());
+      caseItem.client?.nic?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = statusFilter === "all" || caseItem.status === statusFilter;
     const matchesType = typeFilter === "all" || caseItem.type_details?.name === typeFilter;
@@ -315,10 +315,6 @@ export default function Cases() {
                   <div className="flex items-center justify-between text-xs lg:text-sm">
                     <span className="text-muted-foreground">Client:</span>
                     <span className="text-foreground font-medium truncate ml-2">{caseItem.client?.name || "Unassigned"}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs lg:text-sm">
-                    <span className="text-muted-foreground">NIC:</span>
-                    <span className="text-foreground font-medium truncate ml-2">{caseItem.nic || "N/A"}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs lg:text-sm">
                     <span className="text-muted-foreground">Status:</span>

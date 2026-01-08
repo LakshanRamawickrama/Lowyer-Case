@@ -15,7 +15,8 @@ import {
     Briefcase,
     ExternalLink,
     MessageSquare,
-    Clock
+    Clock,
+    Hash
 } from "lucide-react";
 import type { Client } from "@shared/schema";
 import { format } from "date-fns";
@@ -115,6 +116,15 @@ export function ClientDetails({ client, open, onOpenChange, onEdit }: ClientDeta
                                     <div className="flex-1 min-w-0 text-left">
                                         <p className="text-[9px] uppercase tracking-wider font-semibold text-muted-foreground">Phone</p>
                                         <p className="text-xs font-medium text-foreground truncate">{client.phone || "Not provided"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 group">
+                                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-amber-500/10 group-hover:text-amber-500 transition-colors">
+                                        <Hash className="w-3 h-3" />
+                                    </div>
+                                    <div className="flex-1 min-w-0 text-left">
+                                        <p className="text-[9px] uppercase tracking-wider font-semibold text-muted-foreground">NIC</p>
+                                        <p className="text-xs font-medium text-foreground truncate">{client.nic || "Not provided"}</p>
                                     </div>
                                 </div>
                             </div>

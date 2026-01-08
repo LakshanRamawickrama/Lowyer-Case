@@ -167,10 +167,10 @@ export function CaseDetails({ caseData, open, onOpenChange, onEdit }: CaseDetail
 
                             <div className="space-y-1">
                                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                                    <Hash className="w-3 h-3" /> NIC
+                                    <Hash className="w-3 h-3" /> Client NIC
                                 </p>
                                 <p className="text-sm text-foreground font-medium bg-muted/30 p-2 rounded-md border border-border/50">
-                                    {caseData.nic || "N/A"}
+                                    {caseData.client?.nic || "N/A"}
                                 </p>
                             </div>
 

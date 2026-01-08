@@ -18,7 +18,9 @@ import {
   Phone,
   Mail,
   Users,
-  AlertTriangle
+  AlertTriangle,
+  FileText,
+  Bell
 } from "lucide-react";
 import type { InsertClient, Client } from "@shared/schema";
 
@@ -72,7 +74,8 @@ export default function Clients() {
   const filteredClients = clients.filter((client) => {
     return client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+      client.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.nic?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const handleSubmitClient = async (data: InsertClient) => {
@@ -251,6 +254,10 @@ export default function Clients() {
                     <span className="text-foreground font-medium truncate ml-2">{client.phone || "Not provided"}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs lg:text-sm">
+                    <span className="text-muted-foreground">NIC:</span>
+                    <span className="text-foreground font-medium truncate ml-2">{client.nic || "Not provided"}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs lg:text-sm">
                     <span className="text-muted-foreground">Address:</span>
                     <span className="text-foreground font-medium truncate ml-2">{client.address || "Not provided"}</span>
                   </div>
@@ -324,18 +331,30 @@ export default function Clients() {
         itemName={clientToDelete?.name}
       >
         {clientToDelete?.cases && clientToDelete.cases.length > 0 && (
-          <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg text-left">
-            <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" /> Warning: Associated Cases
+          <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-left">
+            <p className="text-sm font-bold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" /> Warning: Data Loss
             </p>
-            <p className="text-xs text-muted-foreground mb-3">
-              Deleting this client will also delete all associated cases and their documents:
+            <p className="text-xs text-muted-foreground mb-4">
+              Deleting this client will permanently remove the following <strong>{clientToDelete.cases.length} cases</strong> and all their associated data:
             </p>
-            <div className="max-h-[150px] overflow-y-auto space-y-2">
+            <div className="max-h-[200px] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
               {clientToDelete.cases.map(c => (
-                <div key={c.id} className="p-2 bg-background/50 rounded border border-border/50">
-                  <p className="text-xs font-medium text-foreground">{c.title}</p>
-                  <p className="text-[10px] text-muted-foreground font-mono">{c.caseNumber || 'No case number'}</p>
+                <div key={c.id} className="p-3 bg-background/50 rounded-lg border border-border/50 hover:border-amber-500/30 transition-colors">
+                  <div className="flex justify-between items-start mb-1">
+                    <p className="text-xs font-bold text-foreground truncate flex-1 mr-2">{c.title}</p>
+                    <Badge variant="outline" className="text-[9px] h-4 px-1.5 bg-background font-mono text-muted-foreground shrink-0">
+                      {c.caseNumber || 'N/A'}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <FileText className="w-3 h-3" /> {c.documentCount} Documents
+                    </span>
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Bell className="w-3 h-3" /> {c.reminderCount} Reminders
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
