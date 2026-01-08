@@ -113,10 +113,10 @@ export default function Profile() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: error.message || "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     },
@@ -138,10 +138,10 @@ export default function Profile() {
       });
       passwordForm.reset();
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to change password. Please try again.",
+        description: error.message || "Failed to change password. Please try again.",
         variant: "destructive",
       });
     },
@@ -457,6 +457,42 @@ export default function Profile() {
                     <SelectItem value="system">System</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="pt-4 border-t border-border/50">
+                <Button
+                  variant="outline"
+                  className="w-full border-indigo-500/30 hover:border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30"
+                  onClick={async () => {
+                    try {
+                      const response = await apiRequest("POST", "/api/test-email", { email: user.email });
+                      if (response.ok) {
+                        toast({
+                          title: "Success",
+                          description: "Test email sent successfully! Please check your inbox.",
+                        });
+                      } else {
+                        const error = await response.json();
+                        toast({
+                          title: "Email Error",
+                          description: error.message || "Failed to send test email.",
+                          variant: "destructive",
+                        });
+                      }
+                    } catch (err) {
+                      toast({
+                        title: "Connection Error",
+                        description: "Could not connect to the server to send test email.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                >
+                  Test Email Connection
+                </Button>
+                <p className="text-[10px] text-muted-foreground mt-2 text-center uppercase tracking-wider font-semibold">
+                  Verify SMTP settings in .env file
+                </p>
               </div>
             </CardContent>
           </Card>
